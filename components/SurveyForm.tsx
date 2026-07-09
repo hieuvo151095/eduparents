@@ -10,7 +10,9 @@ interface Props {
 
 export default function SurveyForm({ onBack, onSuccess }: Props) {
   const [satisfactionScore, setSatisfactionScore] = useState<number | null>(null)
+  const [satisfactionNote, setSatisfactionNote] = useState("")
   const [recommendScore, setRecommendScore] = useState<number | null>(null)
+  const [recommendNote, setRecommendNote] = useState("")
   const [suggestionsNote, setSuggestionsNote] = useState("")
   const [showSuccess, setShowSuccess] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -99,6 +101,25 @@ export default function SurveyForm({ onBack, onSuccess }: Props) {
               <span className="font-bold text-[#111]">{satisfactionScore}/10</span>
             </p>
           )}
+
+          {/* Optional feedback */}
+          <div className="mt-3">
+            <label className="text-[12px] font-medium text-[#555] block mb-1.5">
+              Chia sẻ thêm ý kiến <span className="text-[#aaa] font-normal">(không bắt buộc)</span>
+            </label>
+            <div className="relative">
+              <textarea
+                value={satisfactionNote}
+                onChange={(e) => setSatisfactionNote(e.target.value.slice(0, 255))}
+                placeholder="Nhập ý kiến của bạn..."
+                rows={2}
+                className="w-full bg-[#fafafa] border border-[#ddd] rounded-lg px-3 py-2 text-[13px] text-[#333] placeholder:text-[#bbb] resize-none focus:outline-none focus:border-[#999] transition-colors"
+              />
+              <span className="absolute bottom-2 right-2.5 text-[10px] text-[#bbb]">
+                {satisfactionNote.length}/255
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Q2 — Recommendation */}
@@ -122,6 +143,25 @@ export default function SurveyForm({ onBack, onSuccess }: Props) {
               <span className="font-bold text-[#111]">{recommendScore}/10</span>
             </p>
           )}
+
+          {/* Optional feedback */}
+          <div className="mt-3">
+            <label className="text-[12px] font-medium text-[#555] block mb-1.5">
+              Chia sẻ thêm ý kiến <span className="text-[#aaa] font-normal">(không bắt buộc)</span>
+            </label>
+            <div className="relative">
+              <textarea
+                value={recommendNote}
+                onChange={(e) => setRecommendNote(e.target.value.slice(0, 255))}
+                placeholder="Nhập ý kiến của bạn..."
+                rows={2}
+                className="w-full bg-[#fafafa] border border-[#ddd] rounded-lg px-3 py-2 text-[13px] text-[#333] placeholder:text-[#bbb] resize-none focus:outline-none focus:border-[#999] transition-colors"
+              />
+              <span className="absolute bottom-2 right-2.5 text-[10px] text-[#bbb]">
+                {recommendNote.length}/255
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Q3 — Open-ended suggestions */}
@@ -140,13 +180,13 @@ export default function SurveyForm({ onBack, onSuccess }: Props) {
           <div className="relative">
             <textarea
               value={suggestionsNote}
-              onChange={(e) => setSuggestionsNote(e.target.value.slice(0, 500))}
+              onChange={(e) => setSuggestionsNote(e.target.value.slice(0, 255))}
               placeholder="Chia sẻ ý kiến của bạn..."
-              rows={4}
+              rows={3}
               className="w-full bg-[#fafafa] border border-[#ddd] rounded-lg px-3 py-2 text-[13px] text-[#333] placeholder:text-[#bbb] resize-none focus:outline-none focus:border-[#999] transition-colors"
             />
             <span className="absolute bottom-2 right-2.5 text-[10px] text-[#bbb]">
-              {suggestionsNote.length}/500
+              {suggestionsNote.length}/255
             </span>
           </div>
         </div>
@@ -180,7 +220,7 @@ export default function SurveyForm({ onBack, onSuccess }: Props) {
             <div className="text-center">
               <p className="text-[17px] font-bold text-[#111] mb-1">Gửi thành công!</p>
               <p className="text-[13px] text-[#777] leading-relaxed">
-                Cảm ơn bạn đã dành thời gian chia sẻ ý kiến. Chúng tôi sẽ nỗ lực cải thiện ECO School mỗi ngày.
+                Cảm ơn bạn đã dành thời gian chia sẻ ý kiến. Chúng tôi sẽ n��� lực cải thiện ECO School mỗi ngày.
               </p>
             </div>
             <button
