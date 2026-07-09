@@ -10,13 +10,12 @@ interface Props {
 
 export default function SurveyForm({ onBack, onSuccess }: Props) {
   const [satisfactionScore, setSatisfactionScore] = useState<number | null>(null)
-  const [satisfactionNote, setSatisfactionNote] = useState("")
-  const [referralScore, setReferralScore] = useState<number | null>(null)
-  const [referralNote, setReferralNote] = useState("")
+  const [recommendScore, setRecommendScore] = useState<number | null>(null)
+  const [suggestionsNote, setSuggestionsNote] = useState("")
   const [showSuccess, setShowSuccess] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
-  const isValid = satisfactionScore !== null && referralScore !== null
+  const isValid = satisfactionScore !== null && recommendScore !== null
 
   const handleSubmit = () => {
     if (!isValid) return
@@ -86,7 +85,7 @@ export default function SurveyForm({ onBack, onSuccess }: Props) {
               1
             </span>
             <p className="text-[13px] font-semibold text-[#111] leading-snug">
-              Bạn hài lòng như thế nào khi sử dụng ECO School?
+              Bạn hãy đánh giá mức độ hài lòng của mình khi sử dụng ECO School:
             </p>
           </div>
           <div className="flex justify-between text-[10px] text-[#aaa] mb-1.5 px-0.5">
@@ -100,66 +99,55 @@ export default function SurveyForm({ onBack, onSuccess }: Props) {
               <span className="font-bold text-[#111]">{satisfactionScore}/10</span>
             </p>
           )}
-
-          {/* Optional note */}
-          <div className="mt-3">
-            <label className="text-[12px] font-medium text-[#555] block mb-1.5">
-              Chia sẻ thêm ý kiến <span className="text-[#aaa] font-normal">(không bắt buộc)</span>
-            </label>
-            <div className="relative">
-              <textarea
-                value={satisfactionNote}
-                onChange={(e) => setSatisfactionNote(e.target.value.slice(0, 256))}
-                placeholder="Nhập ý kiến của bạn..."
-                rows={3}
-                className="w-full bg-[#fafafa] border border-[#ddd] rounded-lg px-3 py-2 text-[13px] text-[#333] placeholder:text-[#bbb] resize-none focus:outline-none focus:border-[#999] transition-colors"
-              />
-              <span className="absolute bottom-2 right-2.5 text-[10px] text-[#bbb]">
-                {satisfactionNote.length}/256
-              </span>
-            </div>
-          </div>
         </div>
 
-        {/* Q2 — Referral */}
+        {/* Q2 — Recommendation */}
         <div className="bg-white rounded-xl p-4 shadow-[0_1px_4px_rgba(0,0,0,0.07)] border border-[#eee]">
           <div className="flex items-start gap-2 mb-3">
             <span className="w-5 h-5 rounded-full bg-[#111] text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
               2
             </span>
             <p className="text-[13px] font-semibold text-[#111] leading-snug">
-              Bạn có khả năng giới thiệu ECO School cho phụ huynh hoặc trường khác không?
+              Bạn có sẵn sàng giới thiệu ECO School cho những phụ huynh khác không?
             </p>
           </div>
           <div className="flex justify-between text-[10px] text-[#aaa] mb-1.5 px-0.5">
-            <span>Rất không có khả năng</span>
-            <span>Chắc chắn sẽ giới thiệu</span>
+            <span>Không bao giờ</span>
+            <span>Chắc chắn giới thiệu</span>
           </div>
-          <ScoreRow value={referralScore} onChange={setReferralScore} />
-          {referralScore !== null && (
+          <ScoreRow value={recommendScore} onChange={setRecommendScore} />
+          {recommendScore !== null && (
             <p className="text-[11px] text-[#888] mt-2 text-center">
               Bạn đã chọn:{" "}
-              <span className="font-bold text-[#111]">{referralScore}/10</span>
+              <span className="font-bold text-[#111]">{recommendScore}/10</span>
             </p>
           )}
+        </div>
 
-          {/* Optional note */}
-          <div className="mt-3">
-            <label className="text-[12px] font-medium text-[#555] block mb-1.5">
-              Chia sẻ thêm ý kiến <span className="text-[#aaa] font-normal">(không bắt buộc)</span>
-            </label>
-            <div className="relative">
-              <textarea
-                value={referralNote}
-                onChange={(e) => setReferralNote(e.target.value.slice(0, 256))}
-                placeholder="Nhập ý kiến của bạn..."
-                rows={3}
-                className="w-full bg-[#fafafa] border border-[#ddd] rounded-lg px-3 py-2 text-[13px] text-[#333] placeholder:text-[#bbb] resize-none focus:outline-none focus:border-[#999] transition-colors"
-              />
-              <span className="absolute bottom-2 right-2.5 text-[10px] text-[#bbb]">
-                {referralNote.length}/256
-              </span>
-            </div>
+        {/* Q3 — Open-ended suggestions */}
+        <div className="bg-white rounded-xl p-4 shadow-[0_1px_4px_rgba(0,0,0,0.07)] border border-[#eee]">
+          <div className="flex items-start gap-2 mb-3">
+            <span className="w-5 h-5 rounded-full bg-[#111] text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+              3
+            </span>
+            <p className="text-[13px] font-semibold text-[#111] leading-snug">
+              Bạn hãy chia sẻ thêm những tính năng mới mà bạn muốn có trên ECO School hoặc vấn đề mà bạn gặp phải
+            </p>
+          </div>
+          <label className="text-[12px] font-medium text-[#999] block mb-2">
+            (không bắt buộc)
+          </label>
+          <div className="relative">
+            <textarea
+              value={suggestionsNote}
+              onChange={(e) => setSuggestionsNote(e.target.value.slice(0, 500))}
+              placeholder="Chia sẻ ý kiến của bạn..."
+              rows={4}
+              className="w-full bg-[#fafafa] border border-[#ddd] rounded-lg px-3 py-2 text-[13px] text-[#333] placeholder:text-[#bbb] resize-none focus:outline-none focus:border-[#999] transition-colors"
+            />
+            <span className="absolute bottom-2 right-2.5 text-[10px] text-[#bbb]">
+              {suggestionsNote.length}/500
+            </span>
           </div>
         </div>
       </div>
