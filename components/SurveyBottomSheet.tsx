@@ -104,16 +104,6 @@ export default function SurveyBottomSheet({ isOpen, onConfirm, onSnooze }: Props
             <ClipboardList className="w-7 h-7 text-[#111]" />
           </div>
 
-          {/* Label */}
-          <p className="text-[11px] font-semibold text-[#888] uppercase tracking-widest mb-1">
-            Khảo sát CSAT / NPS
-          </p>
-
-          {/* Headline */}
-          <h2 className="text-[18px] font-bold text-[#111] leading-snug mb-2 text-balance">
-            Ý kiến của bạn giúp ECO School tốt hơn mỗi ngày
-          </h2>
-
           {/* Body */}
           <p className="text-[13px] text-[#666] leading-relaxed mb-6">
             Bạn hãy dành 30 giây chia sẻ ý kiến của mình để chúng tôi cải thiện ECO School nhé!
