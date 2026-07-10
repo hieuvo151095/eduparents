@@ -176,7 +176,7 @@ export default function SurveyForm({ onBack, onSuccess }: Props) {
               3
             </span>
             <p className="text-[13px] font-semibold text-[#111] leading-snug">
-              Bạn hãy chia sẻ thêm những tính năng mới mà bạn muốn có trên ECO School hoặc vấn đề mà bạn gặp phải
+              Bạn vui lòng chia sẻ thêm những ý kiến khác về ứng dụng ECO School.
             </p>
           </div>
           <label className="text-[12px] font-medium text-[#999] block mb-2">
