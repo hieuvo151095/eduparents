@@ -1,13 +1,39 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import ParentsHomepage from "@/components/ParentsHomepage"
 import SurveyForm from "@/components/SurveyForm"
+import SurveyBottomSheet, { shouldShowSurveySheet, snoozeSurveySheet } from "@/components/SurveyBottomSheet"
 
 type Screen = "home" | "survey"
 
 export default function Page() {
   const [screen, setScreen] = useState<Screen>("home")
+  const [sheetOpen, setSheetOpen] = useState(false)
+
+  // Show bottom sheet on mount if snooze has expired (or never set)
+  useEffect(() => {
+    if (shouldShowSurveySheet()) {
+      const timer = setTimeout(() => setSheetOpen(true), 800)
+      return () => clearTimeout(timer)
+    }
+  }, [])
+
+  function handleConfirm() {
+    setSheetOpen(false)
+    setScreen("survey")
+  }
+
+  function handleSnooze() {
+    snoozeSurveySheet()
+    setSheetOpen(false)
+  }
+
+  function handleSurveySuccess() {
+    // Mark as permanently done by setting snooze far in the future
+    localStorage.setItem("eco_survey_snooze_until", String(Date.now() + 365 * 24 * 60 * 60 * 1000))
+    setScreen("home")
+  }
 
   return (
     <main className="min-h-screen bg-[#d6d6d6] flex items-center justify-center p-6">
@@ -43,10 +69,17 @@ export default function Page() {
         {/* Screen content */}
         <div className="flex-1 overflow-hidden relative">
           {screen === "home" && (
-            <ParentsHomepage onSurveyClick={() => setScreen("survey")} />
+            <>
+              <ParentsHomepage />
+              <SurveyBottomSheet
+                isOpen={sheetOpen}
+                onConfirm={handleConfirm}
+                onSnooze={handleSnooze}
+              />
+            </>
           )}
           {screen === "survey" && (
-            <SurveyForm onBack={() => setScreen("home")} onSuccess={() => setScreen("home")} />
+            <SurveyForm onBack={() => setScreen("home")} onSuccess={handleSurveySuccess} />
           )}
         </div>
 

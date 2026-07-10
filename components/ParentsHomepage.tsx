@@ -39,7 +39,7 @@ const features = [
 ]
 
 interface Props {
-  onSurveyClick: () => void
+  onSurveyClick?: () => void
 }
 
 export default function ParentsHomepage({ onSurveyClick }: Props) {
@@ -128,27 +128,8 @@ export default function ParentsHomepage({ onSurveyClick }: Props) {
         </div>
       </div>
 
-      {/* Survey CTA Banner — fixed at bottom */}
-      <div className="mx-3 mt-4 mb-5">
-        <button
-          onClick={onSurveyClick}
-          className="w-full cursor-pointer bg-[#111] hover:bg-[#333] transition-colors rounded-2xl p-4 flex items-center justify-between shadow-[0_4px_16px_rgba(0,0,0,0.18)]"
-        >
-          <div className="flex flex-col items-start gap-0.5">
-            <div className="flex items-center gap-1.5 mb-0.5">
-              <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-              <span className="text-[10px] text-[#aaa] font-medium uppercase tracking-widest">Khảo sát</span>
-            </div>
-            <p className="text-[14px] font-bold text-white leading-snug">Chia sẻ ý kiến của bạn</p>
-            <p className="text-[11px] text-[#aaa]">Chỉ mất 1 phút — giúp chúng tôi cải thiện ứng dụng</p>
-          </div>
-          <div className="flex-shrink-0 ml-3">
-            <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center">
-              <ChevronRight className="w-4 h-4 text-[#111]" />
-            </div>
-          </div>
-        </button>
-      </div>
+      {/* Bottom spacer */}
+      <div className="h-5" />
     </div>
   )
 }
