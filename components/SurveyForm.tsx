@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
-import { ChevronLeft, X, CheckCircle } from "lucide-react"
+import { useState, useEffect } from "react"
+import { ChevronLeft } from "lucide-react"
+import Toast from "./Toast"
 
 interface Props {
   onBack: () => void
@@ -14,7 +15,7 @@ export default function SurveyForm({ onBack, onSuccess }: Props) {
   const [recommendScore, setRecommendScore] = useState<number | null>(null)
   const [recommendNote, setRecommendNote] = useState("")
   const [suggestionsNote, setSuggestionsNote] = useState("")
-  const [showSuccess, setShowSuccess] = useState(false)
+  const [showToast, setShowToast] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
   const isValid = satisfactionScore !== null && recommendScore !== null
@@ -24,14 +25,18 @@ export default function SurveyForm({ onBack, onSuccess }: Props) {
     setSubmitting(true)
     setTimeout(() => {
       setSubmitting(false)
-      setShowSuccess(true)
+      setShowToast(true)
     }, 800)
   }
 
-  const handleSuccessClose = () => {
-    setShowSuccess(false)
-    onSuccess()
-  }
+  useEffect(() => {
+    if (showToast) {
+      const timer = setTimeout(() => {
+        onSuccess()
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [showToast]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const ScoreRow = ({
     value,
@@ -210,28 +215,13 @@ export default function SurveyForm({ onBack, onSuccess }: Props) {
         </button>
       </div>
 
-      {/* Success overlay */}
-      {showSuccess && (
-        <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-6 z-50">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-[320px] shadow-2xl flex flex-col items-center gap-4 animate-in fade-in zoom-in-95 duration-200">
-            <div className="w-16 h-16 rounded-full bg-[#f0f0f0] flex items-center justify-center">
-              <CheckCircle className="w-9 h-9 text-[#111]" strokeWidth={1.5} />
-            </div>
-            <div className="text-center">
-              <p className="text-[17px] font-bold text-[#111] mb-1">Gửi thành công!</p>
-              <p className="text-[13px] text-[#777] leading-relaxed">
-                Cảm ơn bạn đã dành thời gian chia sẻ ý kiến. Chúng tôi sẽ n��� lực cải thiện ECO School mỗi ngày.
-              </p>
-            </div>
-            <button
-              onClick={handleSuccessClose}
-              className="w-full py-3 bg-[#111] text-white rounded-xl text-[14px] font-semibold hover:bg-[#333] transition-colors cursor-pointer"
-            >
-              Về trang chủ
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Toast notification */}
+      <Toast
+        message="Gửi khảo sát thành công. Cảm ơn bạn đã dành thời gian chia sẻ ý kiến."
+        isVisible={showToast}
+        onClose={() => setShowToast(false)}
+        duration={3000}
+      />
     </div>
   )
 }
