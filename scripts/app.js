@@ -37,7 +37,28 @@ const STUDENTS = {
     homework: [],
     absence: [],
     results: null,
-    invoices: { linked: false, sample: [{ name: 'Học phí 07/2026', amount: 200000 }] }
+    invoices: { linked: false, sample: [{ name: 'Học phí 07/2026', amount: 200000 }] },
+    goodBehavior: {
+      yearLabel: 'Năm học 2025 - 2026',
+      cycles: [
+        { id: 'vygb1', type: 'week', label: 'Tuần 13/07 - 18/07/2026', status: 'dat', comment: 'Con rất ngoan, biết giúp đỡ bạn bè' },
+        { id: 'vygb2', type: 'week', label: 'Tuần 06/07 - 11/07/2026', status: 'dat', comment: null },
+        { id: 'vygb3', type: 'week', label: 'Tuần 29/06 - 04/07/2026', status: 'dat', comment: null },
+        { id: 'vygb4', type: 'week', label: 'Tuần 22/06 - 27/06/2026', status: 'khongdat', comment: null },
+        { id: 'vygb5', type: 'month', label: 'Tháng 6/2026', status: 'dat', comment: 'Con tích cực tham gia các hoạt động của lớp' }
+      ],
+      ranking: {
+        achieved: 24, totalCycles: 30,
+        top3: [
+          { name: 'Trần Thị Bình', count: 28 },
+          { name: 'Nguyễn Văn An', count: 26 },
+          { name: 'Phan Khánh Vy', count: 24, isSelf: true }
+        ],
+        selfInTop3: true,
+        selfRank: 3,
+        totalStudents: 32
+      }
+    }
   },
   khoa: {
     id: 'khoa',
@@ -112,6 +133,27 @@ const STUDENTS = {
           { name: 'Học liệu Lịch sử', amount: 280000 }
         ]}
       ]
+    },
+    goodBehavior: {
+      yearLabel: 'Năm học 2025 - 2026',
+      cycles: [
+        { id: 'khoagb1', type: 'week', label: 'Tuần 13/07 - 18/07/2026', status: 'khongdat', comment: 'Con còn nói chuyện riêng trong giờ học' },
+        { id: 'khoagb2', type: 'week', label: 'Tuần 06/07 - 11/07/2026', status: 'dat', comment: 'Con tích cực phát biểu xây dựng bài' },
+        { id: 'khoagb3', type: 'month', label: 'Tháng 6/2026', status: 'dat', comment: null },
+        { id: 'khoagb4', type: 'week', label: 'Tuần 22/06 - 27/06/2026', status: 'dat', comment: null },
+        { id: 'khoagb5', type: 'week', label: 'Tuần 15/06 - 20/06/2026', status: 'khongdat', comment: null }
+      ],
+      ranking: {
+        achieved: 18, totalCycles: 28,
+        top3: [
+          { name: 'Nguyễn Thị Mai', count: 27 },
+          { name: 'Đặng Văn Hùng', count: 25 },
+          { name: 'Lý Gia Bảo', count: 23 }
+        ],
+        selfInTop3: false,
+        selfRank: 7,
+        totalStudents: 25
+      }
     }
   }
 };
@@ -127,16 +169,16 @@ const AMOUNT_PRESETS = [10000, 20000, 50000, 100000, 200000, 500000];
 const ICONS = {
   fee: '▣', topup: '◈', spending: '▥', timetable: '▦',
   attendance: '◷', absence: '✎', homework: '▧', results: '▨',
-  page2: ['▩', '▥', '◐', '▤', '✛', '▬', '▭']
+  page2: ['▩', '▥', '◐', '▤', '✛', '▬', '▭', '★']
 };
 
 const FEATURE_LABELS = {
   fee: 'Đóng học phí', topup: 'Nạp điểm vào thẻ', spending: 'Lịch sử chi tiêu',
   timetable: 'Thời khoá biểu', attendance: 'Theo dõi điểm danh', absence: 'Báo vắng',
-  homework: 'Bài tập', results: 'Kết quả học tập'
+  homework: 'Bài tập', results: 'Kết quả học tập', goodbehavior: 'Phiếu bé ngoan'
 };
 
-const PAGE2_LABELS = ['Học bạ số', 'Thực đơn', 'Hoạt động', 'Hóa đơn', 'Dặn thuốc', 'Bảng tin', 'Nhật ký chăm sóc'];
+const PAGE2_LABELS = ['Học bạ số', 'Thực đơn', 'Hoạt động', 'Hóa đơn', 'Dặn thuốc', 'Bảng tin', 'Nhật ký chăm sóc', 'Phiếu bé ngoan'];
 
 /* ============================================================
    Helpers
@@ -146,6 +188,11 @@ function fmtMoney(n) {
 }
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function abbreviateName(name) {
+  const parts = String(name).trim().split(/\s+/);
+  if (parts.length <= 1) return name;
+  return parts[0] + ' ' + parts.slice(1).map(p => p[0] + '.').join(' ');
 }
 function studentHeaderHTML(student, opts) {
   opts = opts || {};
@@ -248,6 +295,7 @@ const App = {
     if (feature === 'absence') return this.go('absence-list', { studentId, filter: 'all' });
     if (feature === 'homework') return this.go('homework-list', { studentId, filter: 'all' });
     if (feature === 'results') return this.go('results', { studentId, term: 'Học kỳ I' });
+    if (feature === 'goodbehavior') return this.go('goodbehavior', { studentId, tab: 'card' });
     return this.go(feature, { studentId });
   },
 
@@ -349,7 +397,12 @@ SCREENS.home = function () {
           ${page1.map(f => iconItemHTML(FEATURE_LABELS[f], ICONS[f], `App.openStudentPicker('${f}', null)`)).join('')}
         </div>
         <div class="icon-grid-page">
-          ${PAGE2_LABELS.map((label, i) => iconItemHTML(label, ICONS.page2[i], `App.go('placeholder', {title:'${label}', note:'Icon này có trên lưới tính năng nhưng chưa có ảnh màn hình chi tiết trong tài liệu tham chiếu.'})`)).join('')}
+          ${PAGE2_LABELS.map((label, i) => {
+            const onclick = label === 'Phiếu bé ngoan'
+              ? `App.openStudentPicker('goodbehavior', null)`
+              : `App.go('placeholder', {title:'${label}', note:'Icon này có trên lưới tính năng nhưng chưa có ảnh màn hình chi tiết trong tài liệu tham chiếu.'})`;
+            return iconItemHTML(label, ICONS.page2[i], onclick);
+          }).join('')}
         </div>
       </div>
       <div class="icon-dots" id="homeDots">
@@ -1142,6 +1195,81 @@ SCREENS.results = function (params) {
 Object.keys(STUDENTS).forEach(id => {
   App['setResultsTerm_' + id] = function (val) { App.replace('results', { studentId: id, term: val }); };
 });
+
+/* ============================================================
+   Screens: Phiếu bé ngoan
+   ============================================================ */
+const GB_STATUS_LABEL = { dat: 'Đạt', khongdat: 'Không đạt' };
+const GB_MEDALS = ['🥇', '🥈', '🥉'];
+const GOODBEHAVIOR_TABS = [
+  { value: 'card', label: 'Phiếu của con' },
+  { value: 'summary', label: 'Tổng kết' }
+];
+
+SCREENS.goodbehavior = function (params) {
+  const s = App.student(params.studentId);
+  const tab = params.tab || 'card';
+  const gb = s.goodBehavior;
+  return `
+    ${topbarHTML('Phiếu bé ngoan')}
+    ${studentHeaderHTML(s, { intent: 'goodbehavior' })}
+    ${tabsHTML(GOODBEHAVIOR_TABS, tab, `App.setGoodBehaviorTab_${s.id}`)}
+    ${tab === 'summary' ? goodBehaviorSummaryHTML(gb) : goodBehaviorCardHTML(gb)}
+  `;
+};
+Object.keys(STUDENTS).forEach(id => {
+  App['setGoodBehaviorTab_' + id] = function (val) { App.replace('goodbehavior', { studentId: id, tab: val }); };
+});
+
+function goodBehaviorCardHTML(gb) {
+  if (!gb.cycles.length) return emptyStateHTML('Chưa có phiếu bé ngoan');
+  const latest = gb.cycles[0];
+  const history = gb.cycles.slice(1);
+  const isDat = latest.status === 'dat';
+  return `
+    <div class="gb-hero ${isDat ? '' : 'gb-hero--miss'}">
+      <div class="gb-hero-icon">${isDat ? '★' : '☆'}</div>
+      <div class="gb-hero-title">Phiếu bé ngoan</div>
+      <div class="gb-hero-period">${escapeHtml(latest.label)}</div>
+      <div class="gb-hero-msg">${isDat ? 'Con đã đạt Phiếu bé ngoan tuần này!' : 'Con chưa đạt phiếu kỳ này — cố gắng hơn ở kỳ sau nhé!'}</div>
+      ${latest.comment ? `
+        <div class="gb-hero-comment">
+          <div class="gb-hero-comment-label">Nhận xét của cô</div>
+          <div class="gb-hero-comment-text">"${escapeHtml(latest.comment)}"</div>
+        </div>` : ''}
+    </div>
+    <div class="section-heading">Lịch sử</div>
+    ${history.length ? history.map(c => `
+      <div class="list-item">
+        <span class="glyph">${c.status === 'dat' ? '★' : '☆'}</span>
+        <div class="body"><div class="title">${escapeHtml(c.label)}</div></div>
+        ${badgeHTML(GB_STATUS_LABEL[c.status], c.status === 'dat' ? 'filled' : 'muted')}
+      </div>`).join('') : emptyStateHTML('Chưa có lịch sử phiếu bé ngoan')}
+  `;
+}
+
+function goodBehaviorSummaryHTML(gb) {
+  const r = gb.ranking;
+  return `
+    <div class="section-heading" style="margin-top:14px;">${escapeHtml(gb.yearLabel)}</div>
+    <div class="card text-center">
+      <div class="card-title" style="text-align:center;">Tổng số phiếu bé ngoan của con</div>
+      <div class="gb-total">${r.achieved} / ${r.totalCycles} <span class="gb-total-unit">chu kỳ</span></div>
+    </div>
+    <div class="section-heading">Xếp hạng lớp (Top 3)</div>
+    <div class="card">
+      ${r.top3.map((item, i) => `
+        <div class="feedback-row ${item.isSelf ? 'gb-rank-self' : ''}">
+          <span>${GB_MEDALS[i]} ${escapeHtml(item.isSelf ? item.name : abbreviateName(item.name))}</span>
+          <span style="font-weight:700;">${item.count} phiếu</span>
+        </div>`).join('')}
+      ${!r.selfInTop3 ? `
+        <div class="divider"></div>
+        <div class="feedback-row"><span class="text-muted">Vị trí của con</span><span style="font-weight:700;">#${r.selfRank}/${r.totalStudents}</span></div>
+      ` : ''}
+    </div>
+  `;
+}
 
 /* ============================================================
    Screens: Liên kết học sinh

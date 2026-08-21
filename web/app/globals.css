@@ -1,5 +1,10 @@
+@import 'tailwindcss';
+
 /* ============================================================
    EDU Parent — Monochrome design tokens
+   Ported verbatim from ../../styles/main.css (the vanilla app) so the
+   two apps share one visual identity. Do not change these values without
+   updating the vanilla file too — see CLAUDE.md.
    ============================================================ */
 :root {
   --c-black: #000000;
@@ -24,6 +29,34 @@
 
   --device-w: 390px;
   --device-h: 844px;
+
+  /* shadcn/base-ui variable aliases — mapped onto the tokens above so any
+     shadcn primitive (e.g. components/ui/button.tsx) renders in this app's
+     own black/white identity instead of shadcn's default neutral/oklch
+     theme. There is no "destructive" color in the original design (no
+     red/error usage anywhere in styles/main.css) — a standard red is used
+     here only because the shadcn Button variant requires one; it has no
+     equivalent in the vanilla app.
+     */
+  --background: var(--c-white);
+  --foreground: var(--c-ink);
+  --card: var(--c-white);
+  --card-foreground: var(--c-ink);
+  --popover: var(--c-white);
+  --popover-foreground: var(--c-ink);
+  --primary: var(--c-black);
+  --primary-foreground: var(--c-white);
+  --secondary: var(--c-gray-100);
+  --secondary-foreground: var(--c-ink);
+  --muted: var(--c-gray-50);
+  --muted-foreground: var(--c-gray-500);
+  --accent: var(--c-gray-100);
+  --accent-foreground: var(--c-ink);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: var(--c-gray-150);
+  --input: var(--c-gray-200);
+  --ring: var(--c-gray-300);
+  --radius: var(--radius-md);
 }
 
 * { box-sizing: border-box; }
@@ -112,25 +145,10 @@ img { max-width: 100%; display: block; }
   z-index: 60;
 }
 
-@media (max-width: 500px) {
-  .desktop-backdrop { padding: 0; background: var(--c-white); }
-  .device-frame {
-    width: 100vw;
-    height: 100vh;
-    height: 100dvh;
-    border-radius: 0;
-    padding: 0;
-    box-shadow: none;
-    background: transparent;
-  }
-  .device-screen { border-radius: 0; }
-  .device-notch, .device-home-indicator, .device-side-button { display: none; }
-}
-
 /* ============================================================
    App shell
    ============================================================ */
-.app {
+.app-shell {
   position: relative;
   width: 100%;
   height: 100%;
@@ -221,15 +239,6 @@ img { max-width: 100%; display: block; }
 }
 .icon-btn:active { background: var(--c-gray-100); }
 .icon-btn-ghost { width: 36px; flex: none; }
-
-.icon-btn-circle {
-  width: 34px; height: 34px;
-  border-radius: 50%;
-  border: 1px solid var(--c-gray-300);
-  background: var(--c-white);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px;
-}
 
 /* ============================================================
    Brand banner (Home)
@@ -351,7 +360,6 @@ img { max-width: 100%; display: block; }
   font-size: 15px;
   flex: none;
 }
-.avatar.lg { width: 56px; height: 56px; font-size: 20px; }
 .student-name { font-weight: 700; font-size: 14px; }
 .student-code { font-size: 12px; color: var(--c-gray-500); }
 
@@ -403,19 +411,6 @@ img { max-width: 100%; display: block; }
   font-weight: 700;
 }
 
-.balance-row {
-  margin: 12px 16px;
-  padding: 12px 14px;
-  background: var(--c-gray-50);
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 13px;
-  font-weight: 600;
-}
-.balance-row .value { font-size: 17px; font-weight: 800; }
-
 /* ============================================================
    Generic content blocks
    ============================================================ */
@@ -427,12 +422,6 @@ img { max-width: 100%; display: block; }
 }
 .card-title { font-weight: 700; font-size: 14px; margin-bottom: 10px; }
 .divider { height: 1px; background: var(--c-gray-150); margin: 10px 0; }
-
-.kv-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.kv-table th, .kv-table td { text-align: left; padding: 8px 4px; border-bottom: 1px solid var(--c-gray-150); }
-.kv-table th { color: var(--c-gray-500); font-weight: 600; }
-.kv-table td.num, .kv-table th.num { text-align: right; }
-.table-scroll { overflow-x: auto; }
 
 /* ============================================================
    Tabs / segmented controls / pills
@@ -448,7 +437,7 @@ img { max-width: 100%; display: block; }
   flex: none;
   padding: 8px 14px;
   border-radius: 999px;
-  border: 1px solid var(--c-gray-250, var(--c-gray-200));
+  border: 1px solid var(--c-gray-200);
   background: var(--c-white);
   font-size: 13px;
   font-weight: 600;
@@ -456,43 +445,6 @@ img { max-width: 100%; display: block; }
   white-space: nowrap;
 }
 .tab-pill.active { background: var(--c-black); border-color: var(--c-black); color: var(--c-white); }
-
-.segmented {
-  display: flex;
-  margin: 12px 16px 0;
-  border: 1px solid var(--c-gray-200);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-}
-.segmented button {
-  flex: 1;
-  border: none;
-  background: var(--c-white);
-  padding: 10px 6px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--c-gray-500);
-  border-left: 1px solid var(--c-gray-200);
-}
-.segmented button:first-child { border-left: none; }
-.segmented button.active { background: var(--c-gray-900); color: var(--c-white); }
-
-.subtabs {
-  display: flex;
-  margin: 4px 16px 6px;
-  gap: 18px;
-  border-bottom: 1px solid var(--c-gray-150);
-}
-.subtabs button {
-  border: none;
-  background: none;
-  padding: 10px 2px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--c-gray-400);
-  border-bottom: 2px solid transparent;
-}
-.subtabs button.active { color: var(--c-black); border-color: var(--c-black); }
 
 /* ============================================================
    Badges
@@ -508,19 +460,7 @@ img { max-width: 100%; display: block; }
 }
 .badge--filled { background: var(--c-black); color: var(--c-white); }
 .badge--outline { background: var(--c-white); border: 1px solid var(--c-black); color: var(--c-black); }
-.badge--muted { background: var(--c-gray-100); border: 1px solid var(--c-gray-250, var(--c-gray-200)); color: var(--c-gray-500); text-decoration: line-through; }
-
-.alert-box {
-  margin: 12px 16px 0;
-  padding: 10px 12px;
-  border: 1.5px solid var(--c-black);
-  border-radius: var(--radius-md);
-  font-size: 12.5px;
-  font-weight: 600;
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-}
+.badge--muted { background: var(--c-gray-100); border: 1px solid var(--c-gray-200); color: var(--c-gray-500); text-decoration: line-through; }
 
 /* ============================================================
    List items (generic row items: transactions, activity...)
@@ -545,47 +485,6 @@ img { max-width: 100%; display: block; }
 .list-item .time { font-size: 12px; color: var(--c-gray-500); margin-top: 2px; }
 .list-item .amount { font-size: 13.5px; font-weight: 700; flex: none; }
 
-.summary-row { display: flex; gap: 10px; margin: 12px 16px; }
-.summary-box {
-  flex: 1;
-  border: 1px solid var(--c-gray-150);
-  border-radius: var(--radius-md);
-  padding: 10px 12px;
-  font-size: 12px;
-  color: var(--c-gray-500);
-}
-.summary-box .val { display: block; font-size: 16px; font-weight: 800; color: var(--c-black); margin-top: 2px; }
-
-.filter-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 10px 16px;
-  flex-wrap: wrap;
-}
-.filter-chip {
-  border: 1px solid var(--c-gray-250, var(--c-gray-200));
-  background: var(--c-white);
-  border-radius: 999px;
-  padding: 7px 12px;
-  font-size: 12.5px;
-  font-weight: 600;
-}
-.filter-chip.active { background: var(--c-black); color: var(--c-white); border-color: var(--c-black); }
-
-.spend-card {
-  margin: 12px 16px;
-  padding: 16px;
-  border-radius: var(--radius-lg);
-  background: var(--c-gray-900);
-  color: var(--c-white);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.spend-card .name { font-weight: 700; font-size: 14px; }
-.spend-card .code { font-size: 12px; color: var(--c-gray-300); }
-
 /* ============================================================
    Empty state
    ============================================================ */
@@ -600,7 +499,7 @@ img { max-width: 100%; display: block; }
   color: var(--c-gray-400);
   gap: 10px;
 }
-.empty-state .glyph { font-size: 40px; color: var(--c-gray-250, var(--c-gray-200)); }
+.empty-state .glyph { font-size: 40px; color: var(--c-gray-200); }
 .empty-state .text { font-size: 13px; font-weight: 600; }
 
 /* ============================================================
@@ -608,6 +507,79 @@ img { max-width: 100%; display: block; }
    ============================================================ */
 .cta-bar { flex: none; padding: 12px 16px; }
 .cta-bar.sticky { position: sticky; bottom: 0; background: var(--c-white); border-top: 1px solid var(--c-gray-150); }
+.feedback-row { display: flex; justify-content: space-between; font-size: 13px; margin: 6px 0; }
+.text-muted { color: var(--c-gray-500); }
+.text-center { text-align: center; }
+
+/* ============================================================
+   Overlay: bottom sheet + centered dialog
+   ============================================================ */
+.overlay-root { position: absolute; inset: 0; pointer-events: none; z-index: 100; }
+.overlay-root:empty { display: none; }
+
+.scrim {
+  position: absolute; inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  pointer-events: auto;
+  animation: fadeIn .15s ease-out;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.sheet {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  min-height: 30%;
+  max-height: 82%;
+  background: var(--c-white);
+  border-radius: 22px 22px 0 0;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 -8px 30px rgba(0,0,0,.2);
+  animation: slideUp .18s ease-out;
+}
+@keyframes slideUp { from { transform: translateY(24px); opacity:.4; } to { transform: translateY(0); opacity: 1; } }
+.sheet-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid var(--c-gray-150);
+  flex: none;
+}
+.sheet-head .t { font-weight: 800; font-size: 15px; }
+.sheet-body { flex: 1; overflow-y: auto; padding: 12px 0 20px; }
+
+.pick-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin: 0 16px 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--c-gray-150);
+  border-radius: var(--radius-md);
+}
+.pick-row.selected { background: var(--c-gray-900); color: var(--c-white); border-color: var(--c-gray-900); }
+.pick-row .right { text-align: right; }
+.pick-row .right .lbl { font-size: 11px; color: var(--c-gray-500); }
+.pick-row.selected .right .lbl { color: var(--c-gray-300); }
+.pick-row .right .val { font-weight: 800; font-size: 14px; }
+
+/* ============================================================
+   Học sinh Homescreen — balance row
+   ============================================================ */
+.balance-row {
+  margin: 12px 16px;
+  padding: 12px 14px;
+  background: var(--c-gray-50);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+}
+.balance-row .value { font-size: 17px; font-weight: 800; }
+
+/* ============================================================
+   Buttons / CTA
+   ============================================================ */
 .btn {
   width: 100%;
   border: none;
@@ -629,14 +601,13 @@ img { max-width: 100%; display: block; }
    ============================================================ */
 .field { margin: 14px 16px; }
 .field label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
-.field .req { color: var(--c-black); }
 .field input[type="text"],
 .field input[type="date"],
 .field input[type="number"],
 .field textarea,
 .input-box {
   width: 100%;
-  border: 1px solid var(--c-gray-250, var(--c-gray-200));
+  border: 1px solid var(--c-gray-200);
   border-radius: var(--radius-md);
   padding: 12px 14px;
   font-size: 14px;
@@ -644,9 +615,6 @@ img { max-width: 100%; display: block; }
   color: var(--c-ink);
 }
 .field textarea { resize: none; height: 100px; }
-.char-count { text-align: right; font-size: 11px; color: var(--c-gray-400); margin-top: 4px; }
-.field-row { display: flex; gap: 10px; }
-.field-row .field { flex: 1; margin-left: 0; margin-right: 0; }
 
 .amount-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 12px 16px 0; }
 .amount-opt {
@@ -660,99 +628,6 @@ img { max-width: 100%; display: block; }
 }
 .amount-opt.active { border-color: var(--c-black); background: var(--c-gray-50); position: relative; }
 .amount-opt.active::after { content: "✓"; position: absolute; top: 4px; right: 8px; font-size: 11px; }
-
-.upload-box {
-  width: 78px; height: 78px;
-  border: 1px dashed var(--c-gray-300);
-  border-radius: var(--radius-md);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 4px;
-  font-size: 11px;
-  color: var(--c-gray-500);
-  background: var(--c-gray-50);
-}
-.upload-thumb-row { display: flex; gap: 8px; margin: 8px 16px 0; flex-wrap: wrap; }
-.upload-thumb {
-  width: 60px; height: 60px;
-  border-radius: var(--radius-sm);
-  background: var(--c-gray-150);
-  position: relative;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px;
-  color: var(--c-gray-500);
-  overflow: hidden;
-}
-.upload-thumb .rm {
-  position: absolute; top: -5px; right: -5px;
-  width: 18px; height: 18px;
-  border-radius: 50%;
-  background: var(--c-black);
-  color: var(--c-white);
-  font-size: 11px;
-  display: flex; align-items: center; justify-content: center;
-  border: 2px solid var(--c-white);
-}
-
-/* ============================================================
-   Calendar (Điểm danh)
-   ============================================================ */
-.calendar {
-  margin: 4px 16px 12px;
-  border: 1px solid var(--c-gray-150);
-  border-radius: var(--radius-lg);
-  padding: 12px;
-}
-.calendar-head {
-  display: flex; align-items: center; justify-content: space-between;
-  font-weight: 700; font-size: 14px; margin-bottom: 10px;
-}
-.calendar-head .nav-btn { border: none; background: var(--c-gray-100); width: 28px; height: 28px; border-radius: 50%; }
-.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; font-size: 12px; }
-.calendar-grid .wd { color: var(--c-gray-400); font-weight: 700; padding-bottom: 6px; }
-.calendar-grid .day { padding: 7px 0; border-radius: 8px; color: var(--c-ink); }
-.calendar-grid .day.muted { color: var(--c-gray-250, var(--c-gray-200)); }
-.calendar-grid .day.today { background: var(--c-black); color: var(--c-white); font-weight: 700; }
-
-.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
-.stat-item { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
-.stat-item .dot { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--c-black); flex: none; }
-.stat-item .dot.filled { background: var(--c-black); }
-.stat-item b { font-size: 14px; }
-
-/* ============================================================
-   Homework detail — teacher feedback card
-   ============================================================ */
-.feedback-card {
-  margin: 12px 16px;
-  border: 2px solid var(--c-black);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-.feedback-card-tab {
-  display: inline-block;
-  background: var(--c-black);
-  color: var(--c-white);
-  font-size: 11px;
-  font-weight: 700;
-  padding: 5px 14px;
-  border-radius: 0 0 10px 0;
-}
-.feedback-card-body { padding: 4px 14px 14px; }
-.feedback-row { display: flex; justify-content: space-between; font-size: 13px; margin: 6px 0; }
-.feedback-grade { display: flex; border-top: 1px solid var(--c-gray-150); margin-top: 8px; padding-top: 8px; gap: 12px; font-size: 12.5px; }
-.feedback-grade .g-label { color: var(--c-gray-500); flex: none; width: 60px; }
-
-.ring-card {
-  margin: 4px 16px 12px;
-  border-radius: var(--radius-lg);
-  background: var(--c-gray-900);
-  color: var(--c-white);
-  padding: 14px;
-}
-.ring-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; }
-.ring-row .l { color: var(--c-gray-300); }
-
-.attach-thumb { width: 100%; height: 90px; border-radius: var(--radius-sm); background: var(--c-gray-150); display:flex;align-items:center;justify-content:center; color:var(--c-gray-500); font-size:12px; margin-top:8px; }
 
 /* ============================================================
    Invoice groups (Đóng học phí)
@@ -818,32 +693,6 @@ img { max-width: 100%; display: block; }
 .sample-invoice .si-highlight { border: 1.5px solid var(--c-black); border-radius: 6px; padding: 3px 6px; font-weight: 700; }
 
 /* ============================================================
-   Phiếu bé ngoan
-   ============================================================ */
-.gb-hero {
-  margin: 12px 16px;
-  padding: 22px 18px;
-  border-radius: var(--radius-lg);
-  background: var(--c-gray-900);
-  color: var(--c-white);
-  text-align: center;
-}
-.gb-hero--miss { background: var(--c-gray-100); color: var(--c-ink); border: 1px solid var(--c-gray-200); }
-.gb-hero-icon { font-size: 34px; margin-bottom: 6px; }
-.gb-hero-title { font-weight: 800; font-size: 16px; }
-.gb-hero-period { font-size: 12.5px; color: var(--c-gray-300); margin-top: 2px; }
-.gb-hero--miss .gb-hero-period { color: var(--c-gray-500); }
-.gb-hero-msg { margin-top: 12px; font-size: 13.5px; font-weight: 600; line-height: 1.4; }
-.gb-hero-comment { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, .15); text-align: left; }
-.gb-hero--miss .gb-hero-comment { border-top-color: var(--c-gray-200); }
-.gb-hero-comment-label { font-size: 11.5px; font-weight: 700; color: var(--c-gray-300); margin-bottom: 4px; }
-.gb-hero--miss .gb-hero-comment-label { color: var(--c-gray-500); }
-.gb-hero-comment-text { font-size: 13px; font-style: italic; }
-.gb-total { font-size: 30px; font-weight: 800; margin-top: 6px; }
-.gb-total-unit { font-size: 13px; font-weight: 600; color: var(--c-gray-500); }
-.gb-rank-self { font-weight: 800; }
-
-/* ============================================================
    Success / result screens
    ============================================================ */
 .result-hero { display: flex; flex-direction: column; align-items: center; padding: 26px 16px 10px; text-align: center; }
@@ -860,26 +709,8 @@ img { max-width: 100%; display: block; }
 .promo-card { flex: none; width: 130px; border: 1px solid var(--c-gray-150); border-radius: var(--radius-md); padding: 10px; font-size: 11.5px; }
 .promo-card .p-title { font-weight: 700; margin-bottom: 4px; }
 .promo-card .p-price { color: var(--c-gray-500); }
-.banner-note { margin: 10px 16px; border: 1px solid var(--c-gray-150); background: var(--c-gray-50); border-radius: var(--radius-md); padding: 10px 12px; display:flex; align-items:center; gap:10px; font-size: 12.5px; }
+.banner-note { margin: 10px 16px; border: 1px solid var(--c-gray-150); background: var(--c-gray-50); border-radius: var(--radius-md); padding: 10px 12px; display: flex; align-items: center; gap: 10px; font-size: 12.5px; }
 .banner-note .btn-mini { flex: none; border: none; background: var(--c-black); color: var(--c-white); padding: 8px 12px; border-radius: 999px; font-size: 11.5px; font-weight: 700; }
-
-/* ============================================================
-   Placeholder screen ("chưa có thiết kế")
-   ============================================================ */
-.placeholder-box {
-  margin: 16px;
-  flex: 1;
-  border: 1.5px dashed var(--c-gray-300);
-  border-radius: var(--radius-lg);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 10px;
-  padding: 40px 20px;
-  text-align: center;
-  color: var(--c-gray-500);
-}
-.placeholder-box .glyph { font-size: 34px; color: var(--c-gray-300); }
-.placeholder-box .title { font-weight: 800; color: var(--c-ink); font-size: 15px; }
-.placeholder-box .sub { font-size: 12.5px; }
 
 /* ============================================================
    Provider picker rows
@@ -913,42 +744,113 @@ img { max-width: 100%; display: block; }
 }
 
 /* ============================================================
-   Overlay: bottom sheet + centered dialog
+   Tables (Kết quả học tập)
    ============================================================ */
-.overlay-root { position: absolute; inset: 0; pointer-events: none; z-index: 100; }
-.overlay-root:empty { display: none; }
+.kv-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.kv-table th, .kv-table td { text-align: left; padding: 8px 4px; border-bottom: 1px solid var(--c-gray-150); }
+.kv-table th { color: var(--c-gray-500); font-weight: 600; }
+.kv-table td.num, .kv-table th.num { text-align: right; }
+.table-scroll { overflow-x: auto; }
 
-.scrim {
-  position: absolute; inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  pointer-events: auto;
-  animation: fadeIn .15s ease-out;
-}
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-.sheet {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  min-height: 56%;
-  max-height: 82%;
-  background: var(--c-white);
-  border-radius: 22px 22px 0 0;
-  pointer-events: auto;
+/* ============================================================
+   Segmented control (Báo vắng — thời gian nghỉ)
+   ============================================================ */
+.segmented {
   display: flex;
-  flex-direction: column;
-  box-shadow: 0 -8px 30px rgba(0,0,0,.2);
-  animation: slideUp .18s ease-out;
+  margin: 12px 16px 0;
+  border: 1px solid var(--c-gray-200);
+  border-radius: var(--radius-md);
+  overflow: hidden;
 }
-@keyframes slideUp { from { transform: translateY(24px); opacity:.4; } to { transform: translateY(0); opacity: 1; } }
-.sheet-head {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 16px 12px;
-  border-bottom: 1px solid var(--c-gray-150);
-  flex: none;
+.segmented button {
+  flex: 1;
+  border: none;
+  background: var(--c-white);
+  padding: 10px 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--c-gray-500);
+  border-left: 1px solid var(--c-gray-200);
 }
-.sheet-head .t { font-weight: 800; font-size: 15px; }
-.sheet-body { flex: 1; overflow-y: auto; padding: 12px 0 20px; }
+.segmented button:first-child { border-left: none; }
+.segmented button.active { background: var(--c-gray-900); color: var(--c-white); }
 
+.alert-box {
+  margin: 12px 16px 0;
+  padding: 10px 12px;
+  border: 1.5px solid var(--c-black);
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+  font-weight: 600;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.char-count { text-align: right; font-size: 11px; color: var(--c-gray-400); margin-top: 4px; }
+.field-row { display: flex; gap: 10px; }
+.field-row .field { flex: 1; margin-left: 0; margin-right: 0; }
+.hidden-input { display: none; }
+.push-bottom { margin-top: auto; }
+
+.upload-box {
+  width: 78px; height: 78px;
+  border: 1px dashed var(--c-gray-300);
+  border-radius: var(--radius-md);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--c-gray-500);
+  background: var(--c-gray-50);
+}
+.upload-thumb-row { display: flex; gap: 8px; margin: 8px 16px 0; flex-wrap: wrap; }
+.upload-thumb {
+  width: 60px; height: 60px;
+  border-radius: var(--radius-sm);
+  background: var(--c-gray-150);
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  color: var(--c-gray-500);
+  overflow: hidden;
+}
+.upload-thumb .rm {
+  position: absolute; top: -5px; right: -5px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--c-black);
+  color: var(--c-white);
+  font-size: 11px;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--c-white);
+}
+
+/* ============================================================
+   Homework detail — teacher feedback card
+   ============================================================ */
+.feedback-card {
+  margin: 12px 16px;
+  border: 2px solid var(--c-black);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.feedback-card-tab {
+  display: inline-block;
+  background: var(--c-black);
+  color: var(--c-white);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 14px;
+  border-radius: 0 0 10px 0;
+}
+.feedback-card-body { padding: 4px 14px 14px; }
+.feedback-grade { display: flex; border-top: 1px solid var(--c-gray-150); margin-top: 8px; padding-top: 8px; gap: 12px; font-size: 12.5px; }
+.feedback-grade .g-label { color: var(--c-gray-500); flex: none; width: 60px; }
+.attach-thumb { width: 100%; height: 90px; border-radius: var(--radius-sm); background: var(--c-gray-150); display: flex; align-items: center; justify-content: center; color: var(--c-gray-500); font-size: 12px; margin-top: 8px; }
+
+/* ============================================================
+   Overlay: centered dialog
+   ============================================================ */
 .dialog-wrap {
   position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center;
@@ -968,20 +870,6 @@ img { max-width: 100%; display: block; }
 @keyframes popIn { from { transform: scale(.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .dialog-card .d-title { font-weight: 800; font-size: 16px; margin-bottom: 6px; }
 .dialog-card .d-sub { font-size: 13px; color: var(--c-gray-600); margin-bottom: 18px; }
-
-.pick-row {
-  display: flex; align-items: center; justify-content: space-between;
-  margin: 0 16px 10px;
-  padding: 12px 14px;
-  border: 1px solid var(--c-gray-150);
-  border-radius: var(--radius-md);
-}
-.pick-row.selected { background: var(--c-gray-900); color: var(--c-white); border-color: var(--c-gray-900); }
-.pick-row.selected .student-code, .pick-row.selected .kv-label { color: var(--c-gray-300); }
-.pick-row .right { text-align: right; }
-.pick-row .right .lbl { font-size: 11px; color: var(--c-gray-500); }
-.pick-row.selected .right .lbl { color: var(--c-gray-300); }
-.pick-row .right .val { font-weight: 800; font-size: 14px; }
 
 /* ============================================================
    Help / guide screen
@@ -1019,9 +907,28 @@ img { max-width: 100%; display: block; }
 }
 .guide-step .cap { text-align: center; font-size: 12px; font-weight: 600; line-height: 1.3; }
 
-/* utility */
-.mt-0 { margin-top: 0; }
-.text-muted { color: var(--c-gray-500); }
-.text-center { text-align: center; }
-.hidden-input { display: none; }
-.push-bottom { margin-top: auto; }
+/* ============================================================
+   Phiếu bé ngoan
+   ============================================================ */
+.gb-hero {
+  margin: 12px 16px;
+  padding: 22px 18px;
+  border-radius: var(--radius-lg);
+  background: var(--c-gray-900);
+  color: var(--c-white);
+  text-align: center;
+}
+.gb-hero--miss { background: var(--c-gray-100); color: var(--c-ink); border: 1px solid var(--c-gray-200); }
+.gb-hero-icon { font-size: 34px; margin-bottom: 6px; }
+.gb-hero-title { font-weight: 800; font-size: 16px; }
+.gb-hero-period { font-size: 12.5px; color: var(--c-gray-300); margin-top: 2px; }
+.gb-hero--miss .gb-hero-period { color: var(--c-gray-500); }
+.gb-hero-msg { margin-top: 12px; font-size: 13.5px; font-weight: 600; line-height: 1.4; }
+.gb-hero-comment { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, .15); text-align: left; }
+.gb-hero--miss .gb-hero-comment { border-top-color: var(--c-gray-200); }
+.gb-hero-comment-label { font-size: 11.5px; font-weight: 700; color: var(--c-gray-300); margin-bottom: 4px; }
+.gb-hero--miss .gb-hero-comment-label { color: var(--c-gray-500); }
+.gb-hero-comment-text { font-size: 13px; font-style: italic; }
+.gb-total { font-size: 30px; font-weight: 800; margin-top: 6px; }
+.gb-total-unit { font-size: 13px; font-weight: 600; color: var(--c-gray-500); }
+.gb-rank-self { font-weight: 800; }
