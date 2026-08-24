@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { MOCK_STUDENTS } from '@/lib/mock-data'
+import { MOCK_STUDENTS, isMamNonStudent } from '@/lib/mock-data'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
 
 // Mirrors PAGE1_LABELS/PAGE2_LABELS + ICONS in ../../scripts/app.js (vanilla
@@ -71,9 +71,14 @@ export function ParentsHomeScreen({
   }
 
   // Mirrors App.pickStudent's eligibility check: "Nạp điểm vào thẻ" only
-  // lists students whose school supports top-up.
+  // lists students whose school supports top-up, and "Phiếu bé ngoan" only
+  // applies to Mầm non students.
   const pickerStudents =
-    pickerIntent === 'topup' ? MOCK_STUDENTS.filter((s) => s.supportsTopUp) : MOCK_STUDENTS
+    pickerIntent === 'topup'
+      ? MOCK_STUDENTS.filter((s) => s.supportsTopUp)
+      : pickerIntent === 'goodbehavior'
+        ? MOCK_STUDENTS.filter(isMamNonStudent)
+        : MOCK_STUDENTS
 
   const handlePick = (studentId: string) => {
     setPickerIntent(null)

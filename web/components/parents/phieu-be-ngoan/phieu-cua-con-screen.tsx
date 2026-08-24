@@ -1,12 +1,26 @@
-import type { GoodBehavior } from '@/lib/mock-data'
+import { abbreviateName, type GoodBehavior } from '@/lib/mock-data'
 
-const GB_STATUS_LABEL: Record<string, string> = { dat: 'Đạt', khongdat: 'Không đạt' }
+const MEDALS = ['🥇', '🥈', '🥉']
 
 // "Open Question" from phieu-be-ngoan-parent-flow-spec.md, mục I — resolved
 // with the user: when the latest cycle is "Không đạt", still show the hero
 // card (don't hide it), but switch to a lighter/muted variant with a gentle
 // encouragement message instead of the celebratory dark card.
+//
+// Ranking (Top 3) lives here rather than on the "Tổng kết" tab per later
+// user direction, so parents see both "con's latest card" and "how con
+// ranks" without switching tabs.
+//
+// Two "Open Question" decisions from phieu-be-ngoan-parent-flow-spec.md,
+// mục II, resolved with the user before implementing:
+// 1. Top-3 privacy: classmates other than the parent's own child are shown
+//    with abbreviated names ("Trần T. B."), never full names — the child's
+//    own name is always shown in full since the parent already knows it.
+// 2. Rank outside Top 3: shown as an exact ordinal ("#7/25"), not a
+//    qualitative bucket like "top 30%".
 export function PhieuCuaConScreen({ goodBehavior }: { goodBehavior: GoodBehavior }) {
+  const r = goodBehavior.ranking
+
   if (!goodBehavior.cycles.length) {
     return (
       <div className="empty-state">
@@ -16,7 +30,7 @@ export function PhieuCuaConScreen({ goodBehavior }: { goodBehavior: GoodBehavior
     )
   }
 
-  const [latest, ...history] = goodBehavior.cycles
+  const [latest] = goodBehavior.cycles
   const isDat = latest.status === 'dat'
 
   return (
@@ -38,25 +52,28 @@ export function PhieuCuaConScreen({ goodBehavior }: { goodBehavior: GoodBehavior
         )}
       </div>
 
-      <div className="section-heading">Lịch sử</div>
-      {history.length ? (
-        history.map((c) => (
-          <div className="list-item" key={c.id}>
-            <span className="glyph">{c.status === 'dat' ? '★' : '☆'}</span>
-            <div className="body">
-              <div className="title">{c.label}</div>
-            </div>
-            <span className={`badge badge--${c.status === 'dat' ? 'filled' : 'muted'}`}>
-              {GB_STATUS_LABEL[c.status]}
+      <div className="section-heading">Xếp hạng lớp (Top 3)</div>
+      <div className="card">
+        {r.top3.map((item, i) => (
+          <div className={`feedback-row ${item.isSelf ? 'gb-rank-self' : ''}`} key={item.name}>
+            <span>
+              {MEDALS[i]} {item.isSelf ? item.name : abbreviateName(item.name)}
             </span>
+            <span style={{ fontWeight: 700 }}>{item.count} phiếu</span>
           </div>
-        ))
-      ) : (
-        <div className="empty-state">
-          <div className="glyph">▢</div>
-          <div className="text">Chưa có lịch sử phiếu bé ngoan</div>
-        </div>
-      )}
+        ))}
+        {!r.selfInTop3 && (
+          <>
+            <div className="divider" />
+            <div className="feedback-row">
+              <span className="text-muted">Vị trí của con</span>
+              <span style={{ fontWeight: 700 }}>
+                #{r.selfRank}/{r.totalStudents}
+              </span>
+            </div>
+          </>
+        )}
+      </div>
     </>
   )
 }

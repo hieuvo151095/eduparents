@@ -84,6 +84,10 @@ export interface GoodBehaviorCycle {
   label: string
   status: GbStatus
   comment: string | null
+  // ISO date (YYYY-MM-DD) of the Monday that starts this cycle's week —
+  // only set for type: 'week', used to place the cycle on the calendar in
+  // the "Tổng kết" tab (the week's Sunday cell gets the star).
+  weekStart?: string
 }
 
 export interface GoodBehaviorRankingEntry {
@@ -163,10 +167,10 @@ export const MOCK_STUDENTS: Student[] = [
     goodBehavior: {
       yearLabel: 'Năm học 2025 - 2026',
       cycles: [
-        { id: 'vygb1', type: 'week', label: 'Tuần 13/07 - 18/07/2026', status: 'dat', comment: 'Con rất ngoan, biết giúp đỡ bạn bè' },
-        { id: 'vygb2', type: 'week', label: 'Tuần 06/07 - 11/07/2026', status: 'dat', comment: null },
-        { id: 'vygb3', type: 'week', label: 'Tuần 29/06 - 04/07/2026', status: 'dat', comment: null },
-        { id: 'vygb4', type: 'week', label: 'Tuần 22/06 - 27/06/2026', status: 'khongdat', comment: null },
+        { id: 'vygb1', type: 'week', label: 'Tuần 13/07 - 18/07/2026', status: 'dat', comment: 'Con rất ngoan, biết giúp đỡ bạn bè', weekStart: '2026-07-13' },
+        { id: 'vygb2', type: 'week', label: 'Tuần 06/07 - 11/07/2026', status: 'dat', comment: null, weekStart: '2026-07-06' },
+        { id: 'vygb3', type: 'week', label: 'Tuần 29/06 - 04/07/2026', status: 'dat', comment: null, weekStart: '2026-06-29' },
+        { id: 'vygb4', type: 'week', label: 'Tuần 22/06 - 27/06/2026', status: 'khongdat', comment: null, weekStart: '2026-06-22' },
         { id: 'vygb5', type: 'month', label: 'Tháng 6/2026', status: 'dat', comment: 'Con tích cực tham gia các hoạt động của lớp' },
       ],
       ranking: {
@@ -272,11 +276,11 @@ export const MOCK_STUDENTS: Student[] = [
     goodBehavior: {
       yearLabel: 'Năm học 2025 - 2026',
       cycles: [
-        { id: 'khoagb1', type: 'week', label: 'Tuần 13/07 - 18/07/2026', status: 'khongdat', comment: 'Con còn nói chuyện riêng trong giờ học' },
-        { id: 'khoagb2', type: 'week', label: 'Tuần 06/07 - 11/07/2026', status: 'dat', comment: 'Con tích cực phát biểu xây dựng bài' },
+        { id: 'khoagb1', type: 'week', label: 'Tuần 13/07 - 18/07/2026', status: 'khongdat', comment: 'Con còn nói chuyện riêng trong giờ học', weekStart: '2026-07-13' },
+        { id: 'khoagb2', type: 'week', label: 'Tuần 06/07 - 11/07/2026', status: 'dat', comment: 'Con tích cực phát biểu xây dựng bài', weekStart: '2026-07-06' },
         { id: 'khoagb3', type: 'month', label: 'Tháng 6/2026', status: 'dat', comment: null },
-        { id: 'khoagb4', type: 'week', label: 'Tuần 22/06 - 27/06/2026', status: 'dat', comment: null },
-        { id: 'khoagb5', type: 'week', label: 'Tuần 15/06 - 20/06/2026', status: 'khongdat', comment: null },
+        { id: 'khoagb4', type: 'week', label: 'Tuần 22/06 - 27/06/2026', status: 'dat', comment: null, weekStart: '2026-06-22' },
+        { id: 'khoagb5', type: 'week', label: 'Tuần 15/06 - 20/06/2026', status: 'khongdat', comment: null, weekStart: '2026-06-15' },
       ],
       ranking: {
         achieved: 18,
@@ -296,6 +300,11 @@ export const MOCK_STUDENTS: Student[] = [
 
 export function getStudent(id: string): Student | undefined {
   return MOCK_STUDENTS.find((s) => s.id === id)
+}
+
+// "Phiếu bé ngoan" only applies to Mầm non (preschool) students.
+export function isMamNonStudent(s: Student): boolean {
+  return s.school.includes('Mầm non')
 }
 
 export function abbreviateName(name: string): string {

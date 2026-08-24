@@ -528,7 +528,6 @@ img { max-width: 100%; display: block; }
 .sheet {
   position: absolute;
   left: 0; right: 0; bottom: 0;
-  min-height: 30%;
   max-height: 82%;
   background: var(--c-white);
   border-radius: 22px 22px 0 0;
@@ -930,5 +929,35 @@ img { max-width: 100%; display: block; }
 .gb-hero--miss .gb-hero-comment-label { color: var(--c-gray-500); }
 .gb-hero-comment-text { font-size: 13px; font-style: italic; }
 .gb-total { font-size: 30px; font-weight: 800; margin-top: 6px; }
-.gb-total-unit { font-size: 13px; font-weight: 600; color: var(--c-gray-500); }
 .gb-rank-self { font-weight: 800; }
+
+.gb-cal-head {
+  display: flex; align-items: center; justify-content: center; gap: 18px;
+  margin-bottom: 10px;
+}
+.gb-cal-head .icon-btn[disabled] { opacity: .3; }
+.gb-cal-label { font-weight: 700; font-size: 14px; min-width: 96px; text-align: center; }
+.gb-cal-weekdays {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 4px;
+}
+.gb-cal-weekdays span {
+  text-align: center; font-size: 11px; font-weight: 700; color: var(--c-gray-500);
+}
+.gb-cal-week {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  border-radius: var(--radius-sm);
+}
+.gb-cal-week--achieved { background: var(--c-gray-100); }
+.gb-cal-day {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  height: 34px;
+  font-size: 13px;
+}
+.gb-cal-day--outside { color: var(--c-gray-300); }
+.gb-cal-star {
+  position: absolute; top: 1px; right: 1px;
+  font-size: 10px; color: var(--c-gray-300); line-height: 1;
+}
+.gb-cal-star--achieved { color: #d4a017; }

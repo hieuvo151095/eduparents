@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { MOCK_STUDENTS, getStudent } from '@/lib/mock-data'
+import { MOCK_STUDENTS, getStudent, isMamNonStudent } from '@/lib/mock-data'
 import { TopBar, StudentHeader } from '@/components/parents/shared/header'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
 import { PhieuCuaConScreen } from './phieu-cua-con-screen'
@@ -52,7 +52,7 @@ export function PhieuBeNgoanApp({ studentId, onBack }: PhieuBeNgoanAppProps) {
 
       {showPicker && (
         <StudentPickerSheet
-          students={MOCK_STUDENTS}
+          students={MOCK_STUDENTS.filter(isMamNonStudent)}
           selectedStudentId={selectedStudentId}
           onSelect={(s) => {
             setSelectedStudentId(s.id)
