@@ -96,6 +96,16 @@ export interface GoodBehaviorRankingEntry {
   isSelf?: boolean
 }
 
+// Count of times the child has placed 1st/2nd/3rd in the class ranking,
+// tallied at the end of each month based on the "Phiếu bé ngoan" count at
+// that time — distinct from `top3`/`selfRank`, which reflect the *current*
+// standing.
+export interface GoodBehaviorPositionsAchieved {
+  first: number
+  second: number
+  third: number
+}
+
 export interface GoodBehaviorRanking {
   achieved: number
   totalCycles: number
@@ -103,6 +113,10 @@ export interface GoodBehaviorRanking {
   selfInTop3: boolean
   selfRank: number | null
   totalStudents: number
+  // Week label the ranking was last recalculated for — the leaderboard
+  // updates weekly, so this can lag behind the child's own latest cycle.
+  asOfLabel: string
+  positionsAchieved: GoodBehaviorPositionsAchieved
 }
 
 export interface GoodBehavior {
@@ -167,6 +181,8 @@ export const MOCK_STUDENTS: Student[] = [
     goodBehavior: {
       yearLabel: 'Năm học 2025 - 2026',
       cycles: [
+        { id: 'vygb0', type: 'week', label: 'Tuần 27/07 - 02/08/2026', status: 'dat', comment: null, weekStart: '2026-07-27' },
+        { id: 'vygb0b', type: 'week', label: 'Tuần 20/07 - 26/07/2026', status: 'khongdat', comment: null, weekStart: '2026-07-20' },
         { id: 'vygb1', type: 'week', label: 'Tuần 13/07 - 18/07/2026', status: 'dat', comment: 'Con rất ngoan, biết giúp đỡ bạn bè', weekStart: '2026-07-13' },
         { id: 'vygb2', type: 'week', label: 'Tuần 06/07 - 11/07/2026', status: 'dat', comment: null, weekStart: '2026-07-06' },
         { id: 'vygb3', type: 'week', label: 'Tuần 29/06 - 04/07/2026', status: 'dat', comment: null, weekStart: '2026-06-29' },
@@ -174,16 +190,18 @@ export const MOCK_STUDENTS: Student[] = [
         { id: 'vygb5', type: 'month', label: 'Tháng 6/2026', status: 'dat', comment: 'Con tích cực tham gia các hoạt động của lớp' },
       ],
       ranking: {
-        achieved: 24,
-        totalCycles: 30,
+        achieved: 25,
+        totalCycles: 32,
         top3: [
-          { name: 'Trần Thị Bình', count: 28 },
-          { name: 'Nguyễn Văn An', count: 26 },
-          { name: 'Phan Khánh Vy', count: 24, isSelf: true },
+          { name: 'Trần Thị Bình', count: 30 },
+          { name: 'Nguyễn Văn An', count: 28 },
+          { name: 'Lê Gia Hân', count: 27 },
         ],
-        selfInTop3: true,
-        selfRank: 3,
+        selfInTop3: false,
+        selfRank: 5,
         totalStudents: 32,
+        asOfLabel: 'Tuần 13/07 - 18/07/2026',
+        positionsAchieved: { first: 2, second: 3, third: 0 },
       },
     },
   },
@@ -293,6 +311,50 @@ export const MOCK_STUDENTS: Student[] = [
         selfInTop3: false,
         selfRank: 7,
         totalStudents: 25,
+        asOfLabel: 'Tuần 13/07 - 18/07/2026',
+        positionsAchieved: { first: 0, second: 1, third: 2 },
+      },
+    },
+  },
+  {
+    id: 'lam',
+    code: '9192930085',
+    name: 'Võ Phạm Hiểu Lam',
+    school: 'Trường Mầm non Demo',
+    className: 'Lớp Mầm',
+    balance: 0,
+    avatar: 'L',
+    supportsTopUp: false,
+    hasLinkedInvoice: false,
+    recentActivity: [
+      { title: 'Thêm liên kết học sinh Võ Phạm Hiểu Lam | 9192930085', time: '20/07/2026 - 08:15' },
+      { title: 'Đã kích hoạt thẻ học sinh Võ Phạm Hiểu Lam', time: '20/07/2026 - 08:15' },
+    ],
+    invoices: { linked: false, sample: [{ name: 'Học phí 07/2026', amount: 200000 }] },
+    homework: [],
+    absence: [],
+    results: null,
+    goodBehavior: {
+      yearLabel: 'Năm học 2025 - 2026',
+      cycles: [
+        { id: 'lamgb1', type: 'week', label: 'Tuần 27/07 - 02/08/2026', status: 'dat', comment: 'Con ngoan, ăn ngủ tốt', weekStart: '2026-07-27' },
+        { id: 'lamgb2', type: 'week', label: 'Tuần 20/07 - 26/07/2026', status: 'dat', comment: null, weekStart: '2026-07-20' },
+        { id: 'lamgb3', type: 'week', label: 'Tuần 13/07 - 18/07/2026', status: 'khongdat', comment: 'Con còn quấy khóc buổi trưa', weekStart: '2026-07-13' },
+        { id: 'lamgb4', type: 'month', label: 'Tháng 6/2026', status: 'dat', comment: null },
+      ],
+      ranking: {
+        achieved: 10,
+        totalCycles: 14,
+        top3: [
+          { name: 'Nguyễn Bảo Ngọc', count: 13 },
+          { name: 'Trần Gia Khang', count: 12 },
+          { name: 'Đỗ Minh Thư', count: 11 },
+        ],
+        selfInTop3: false,
+        selfRank: 6,
+        totalStudents: 20,
+        asOfLabel: 'Tuần 20/07 - 26/07/2026',
+        positionsAchieved: { first: 0, second: 1, third: 2 },
       },
     },
   },

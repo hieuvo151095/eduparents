@@ -74,6 +74,25 @@ export function PhieuCuaConScreen({ goodBehavior }: { goodBehavior: GoodBehavior
           </>
         )}
       </div>
+      <div className="gb-rank-note">
+        Bảng xếp hạng sẽ được cập nhật mới mỗi tuần. Dữ liệu mới nhất là {r.asOfLabel.toLowerCase()}
+      </div>
+
+      <div className="section-heading">Vị trí bé đạt được</div>
+      <div className="card">
+        <div className="feedback-row">
+          <span>{MEDALS[0]} Vị trí Nhất</span>
+          <span style={{ fontWeight: 700 }}>{r.positionsAchieved.first} lần</span>
+        </div>
+        <div className="feedback-row">
+          <span>{MEDALS[1]} Vị trí Nhì</span>
+          <span style={{ fontWeight: 700 }}>{r.positionsAchieved.second} lần</span>
+        </div>
+        <div className="feedback-row">
+          <span>{MEDALS[2]} Vị trí Ba</span>
+          <span style={{ fontWeight: 700 }}>{r.positionsAchieved.third} lần</span>
+        </div>
+      </div>
     </>
   )
 }
