@@ -58,6 +58,14 @@ export interface RecentActivity {
   amount?: string
 }
 
+// Người giám hộ — mock data only (there is no real guardian source in the
+// vanilla app). Shown on the "Hồ sơ học sinh" profile screen.
+export interface Guardian {
+  name: string
+  phone: string
+  address: string
+}
+
 export interface InvoiceItem {
   name: string
   amount: number
@@ -125,12 +133,29 @@ export interface GoodBehavior {
   ranking: GoodBehaviorRanking
 }
 
+export interface HealthRecord {
+  heightCm: number
+  weightKg: number
+  recordedAt: string
+}
+
 export interface Student {
   id: string
   code: string
   name: string
   school: string
   className: string
+  // Personal info shown on the "Hồ sơ học sinh" profile screen.
+  dob: string
+  gender: string
+  guardians: Guardian[]
+  // Chỉ số sức khoẻ (Học sinh screen) — cm / kg. BMI is derived, not stored.
+  heightCm: number
+  weightKg: number
+  // History shown in the "Lịch sử chỉ số sức khoẻ" sheet — newest first,
+  // limited to the last 6 months (the default/only window shown to parents).
+  // healthHistory[0] mirrors heightCm/weightKg above.
+  healthHistory: HealthRecord[]
   balance: number
   avatar: string
   supportsTopUp: boolean
@@ -164,6 +189,21 @@ export const MOCK_STUDENTS: Student[] = [
     name: 'Phan Khánh Vy',
     school: 'Trường Mầm non Demo',
     className: 'Lớp Lá',
+    dob: '05/09/2020',
+    gender: 'Nữ',
+    guardians: [
+      { name: 'Phan Văn Dũng', phone: '0912 345 678', address: 'Thành phố Hồ Chí Minh' },
+    ],
+    heightCm: 112,
+    weightKg: 24,
+    healthHistory: [
+      { heightCm: 112, weightKg: 24, recordedAt: '01/09/2026' },
+      { heightCm: 111, weightKg: 23.5, recordedAt: '01/08/2026' },
+      { heightCm: 110, weightKg: 23, recordedAt: '01/07/2026' },
+      { heightCm: 109, weightKg: 22.5, recordedAt: '01/06/2026' },
+      { heightCm: 108, weightKg: 22, recordedAt: '01/05/2026' },
+      { heightCm: 107, weightKg: 21.5, recordedAt: '01/04/2026' },
+    ],
     balance: 12000,
     avatar: 'V',
     supportsTopUp: true,
@@ -211,6 +251,18 @@ export const MOCK_STUDENTS: Student[] = [
     name: 'Trần Đăng Khoa',
     school: 'Trường FINVIET',
     className: 'Lớp 10A1',
+    dob: '12/04/2010',
+    gender: 'Nam',
+    guardians: [
+      { name: 'Trần Đăng Khoa', phone: '0397 486 867', address: 'Thành phố Hồ Chí Minh' },
+    ],
+    heightCm: 165,
+    weightKg: 65,
+    healthHistory: [
+      { heightCm: 165, weightKg: 65, recordedAt: '15/08/2026' },
+      { heightCm: 164, weightKg: 63, recordedAt: '15/06/2026' },
+      { heightCm: 163, weightKg: 61, recordedAt: '15/04/2026' },
+    ],
     balance: 0,
     avatar: 'K',
     supportsTopUp: false,
@@ -322,6 +374,22 @@ export const MOCK_STUDENTS: Student[] = [
     name: 'Võ Phạm Hiểu Lam',
     school: 'Trường Mầm non Demo',
     className: 'Lớp Mầm',
+    dob: '18/11/2022',
+    gender: 'Nữ',
+    guardians: [
+      { name: 'Võ Thành Nam', phone: '0938 111 222', address: 'Thành phố Hồ Chí Minh' },
+      { name: 'Phạm Thị Hồng', phone: '0907 333 444', address: 'Thành phố Hồ Chí Minh' },
+    ],
+    heightCm: 96,
+    weightKg: 14,
+    healthHistory: [
+      { heightCm: 96, weightKg: 14, recordedAt: '01/09/2026' },
+      { heightCm: 95, weightKg: 13.5, recordedAt: '01/08/2026' },
+      { heightCm: 94, weightKg: 13, recordedAt: '01/07/2026' },
+      { heightCm: 93, weightKg: 12.5, recordedAt: '01/06/2026' },
+      { heightCm: 92, weightKg: 12, recordedAt: '01/05/2026' },
+      { heightCm: 91.5, weightKg: 11.5, recordedAt: '01/04/2026' },
+    ],
     balance: 0,
     avatar: 'L',
     supportsTopUp: false,

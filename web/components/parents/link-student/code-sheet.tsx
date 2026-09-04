@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { OverlayPortal } from '@/components/parents/shared/overlay-portal'
 
 // Mirrors SHEETS['link-code']. The "Xác nhận" CTA has no onClick once
 // enabled — no reference screenshot exists for a link result screen (see
@@ -12,7 +13,7 @@ export function CodeSheet({ onClose }: { onClose: () => void }) {
   const canConfirm = studentCode.trim() && guardCode.trim()
 
   return (
-    <>
+    <OverlayPortal>
       <div className="scrim" onClick={onClose} />
       <div className="sheet">
         <div className="sheet-head">
@@ -50,6 +51,6 @@ export function CodeSheet({ onClose }: { onClose: () => void }) {
           </div>
         </div>
       </div>
-    </>
+    </OverlayPortal>
   )
 }

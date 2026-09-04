@@ -1,6 +1,7 @@
 'use client'
 
 import { PROVIDERS, type Provider } from '@/lib/mock-data'
+import { OverlayPortal } from '@/components/parents/shared/overlay-portal'
 
 // Mirrors SHEETS['fee-provider'] in ../../../scripts/app.js.
 export function ProviderPickerSheet({
@@ -11,7 +12,7 @@ export function ProviderPickerSheet({
   onClose: () => void
 }) {
   return (
-    <>
+    <OverlayPortal>
       <div className="scrim" onClick={onClose} />
       <div className="sheet">
         <div className="sheet-head">
@@ -30,6 +31,6 @@ export function ProviderPickerSheet({
           ))}
         </div>
       </div>
-    </>
+    </OverlayPortal>
   )
 }

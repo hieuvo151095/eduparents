@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { ParentsHomeScreen } from '@/components/parents/home-screen'
 import { StudentScreen } from '@/components/parents/student-screen'
+import { ProfileApp } from '@/components/parents/profile'
 import { PhieuBeNgoanApp } from '@/components/parents/phieu-be-ngoan'
 import { FeeApp } from '@/components/parents/fee'
 import { TopupApp } from '@/components/parents/topup'
@@ -30,6 +31,7 @@ import { HelpApp } from '@/components/parents/help'
 type Screen =
   | 'home'
   | 'student'
+  | 'profile'
   | 'phieu-be-ngoan'
   | 'fee'
   | 'topup'
@@ -114,6 +116,10 @@ export default function Page() {
                   studentId={activeStudentId}
                   onBack={() => setScreen('home')}
                   onSelectStudent={setActiveStudentId}
+                  onOpenProfile={(studentId) => {
+                    setActiveStudentId(studentId)
+                    setScreen('profile')
+                  }}
                   onOpenFee={(studentId) => {
                     setActiveStudentId(studentId)
                     setReturnScreen('student')
@@ -140,6 +146,10 @@ export default function Page() {
                     setScreen('results')
                   }}
                 />
+              )}
+
+              {screen === 'profile' && activeStudentId && (
+                <ProfileApp studentId={activeStudentId} onBack={() => setScreen('student')} />
               )}
 
               {screen === 'phieu-be-ngoan' && activeStudentId && (
@@ -174,6 +184,8 @@ export default function Page() {
 
               {screen === 'help' && <HelpApp onBack={() => setScreen('home')} />}
             </main>
+
+            <div className="overlay-root" id="overlay-root" />
           </div>
         </div>
         <div className="device-home-indicator" />

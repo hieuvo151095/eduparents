@@ -1,5 +1,7 @@
 'use client'
 
+import { OverlayPortal } from '@/components/parents/shared/overlay-portal'
+
 // Mirrors the DIALOGS pattern (centered modal, .dialog-wrap/.dialog-card) in
 // ../../../scripts/app.js — used for "Xin phép vắng thành công" and "Nộp
 // bài thành công". Unlike StudentPickerSheet, the vanilla dialog has no
@@ -16,7 +18,7 @@ export function Dialog({
   onConfirm: () => void
 }) {
   return (
-    <>
+    <OverlayPortal>
       <div className="scrim" />
       <div className="dialog-wrap">
         <div className="dialog-card">
@@ -27,6 +29,6 @@ export function Dialog({
           </button>
         </div>
       </div>
-    </>
+    </OverlayPortal>
   )
 }

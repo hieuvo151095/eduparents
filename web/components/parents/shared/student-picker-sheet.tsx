@@ -1,6 +1,7 @@
 'use client'
 
 import type { Student } from '@/lib/mock-data'
+import { OverlayPortal } from '@/components/parents/shared/overlay-portal'
 
 // Mirrors SHEETS['student-picker'] in ../../../scripts/app.js (vanilla app) —
 // same interaction contract as eduteachers' ClassPickerSheet (scrim closes on
@@ -20,7 +21,7 @@ export function StudentPickerSheet({
   onClose: () => void
 }) {
   return (
-    <>
+    <OverlayPortal>
       <div className="scrim" onClick={onClose} />
       <div className="sheet">
         <div className="sheet-head">
@@ -48,6 +49,6 @@ export function StudentPickerSheet({
           ))}
         </div>
       </div>
-    </>
+    </OverlayPortal>
   )
 }
