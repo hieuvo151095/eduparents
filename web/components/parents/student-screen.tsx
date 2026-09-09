@@ -10,6 +10,7 @@ import { OverlayPortal } from '@/components/parents/shared/overlay-portal'
 // ≥25 Béo phì. Each band has a colour that drives both its bar segment and
 // the category badge. `weight` is the relative width of the segment on the
 // gauge — chosen to match the "BMI sample" mockup, not the numeric range.
+// Still used for the "Lịch sử chỉ số sức khoẻ" history table.
 const BMI_BANDS = [
   { key: 'under', label: 'Thiếu cân', color: '#5c7cd1', max: 18.5, weight: 27.8 },
   { key: 'normal', label: 'Bình thường', color: '#5bb87a', max: 23, weight: 19.6 },
@@ -21,23 +22,38 @@ function bmiBand(bmi: number) {
   return BMI_BANDS.find((b) => bmi < b.max) ?? BMI_BANDS[BMI_BANDS.length - 1]
 }
 
-// Position (in %) of a BMI value along the gauge. Piecewise-linear between the
-// band boundaries so the marker lands proportionally inside its own segment,
-// matching how the boundary ticks (18.5 / 23 / 25) sit on the bar.
-function bmiPercent(bmi: number): number {
+// Chỉ số Z (BMI-for-age z-score) classification per Quyết định số 3777/QĐ-BYT
+// ngày 16/12/2024 của Bộ Y tế: z < -2 Thiếu cân, -2 ≤ z ≤ 2 Bình thường,
+// z > 2 Thừa cân, z > 3 Béo phì (obese is a stricter sub-range of overweight,
+// so its band must be checked before the wider "over" one below).
+const Z_SCORE_BANDS = [
+  { key: 'under', label: 'Thiếu cân', color: '#5c7cd1', max: -2, weight: 25 },
+  { key: 'normal', label: 'Bình thường', color: '#5bb87a', max: 2, weight: 50 },
+  { key: 'over', label: 'Thừa cân', color: '#d6a02c', max: 3, weight: 12.5 },
+  { key: 'obese', label: 'Béo phì', color: '#cc9ba1', max: Infinity, weight: 12.5 },
+]
+
+function zScoreBand(z: number) {
+  return Z_SCORE_BANDS.find((b) => z < b.max) ?? Z_SCORE_BANDS[Z_SCORE_BANDS.length - 1]
+}
+
+// Position (in %) of a z-score along the gauge, clamped to [-4, 4] and
+// piecewise-linear between the band boundaries (-2 / 2 / 3) so the marker
+// lands proportionally inside its own segment, matching the boundary ticks.
+function zScorePercent(z: number): number {
   const anchors: [number, number][] = [
-    [0, 0],
-    [18.5, 27.8],
-    [23, 47.4],
-    [25, 55.7],
-    [40, 100],
+    [-4, 0],
+    [-2, 25],
+    [2, 75],
+    [3, 87.5],
+    [4, 100],
   ]
-  if (bmi <= 0) return 0
-  if (bmi >= 40) return 100
+  if (z <= -4) return 0
+  if (z >= 4) return 100
   for (let i = 1; i < anchors.length; i++) {
     const [x0, p0] = anchors[i - 1]
     const [x1, p1] = anchors[i]
-    if (bmi <= x1) return p0 + ((bmi - x0) / (x1 - x0)) * (p1 - p0)
+    if (z <= x1) return p0 + ((z - x0) / (x1 - x0)) * (p1 - p0)
   }
   return 100
 }
@@ -45,15 +61,17 @@ function bmiPercent(bmi: number): number {
 function HealthCard({
   heightCm,
   weightKg,
+  zScore,
   onInfoClick,
 }: {
   heightCm: number
   weightKg: number
+  zScore: number
   onInfoClick: () => void
 }) {
   const bmi = weightKg / (heightCm / 100) ** 2
-  const band = bmiBand(bmi)
-  const pos = bmiPercent(bmi)
+  const band = zScoreBand(zScore)
+  const pos = zScorePercent(zScore)
 
   return (
     <div className="health-frame">
@@ -66,16 +84,20 @@ function HealthCard({
           <div className="val">{weightKg}</div>
           <div className="lbl">Cân nặng (kg)</div>
         </div>
+        <div className="health-stat">
+          <div className="val">{bmi.toFixed(1)}</div>
+          <div className="lbl">BMI</div>
+        </div>
       </div>
 
       <div className="divider" />
 
       <div className="bmi">
         <div className="bmi-value-row">
-          <span className="bmi-value">{bmi.toFixed(1)}</span>
+          <span className="bmi-value">{zScore.toFixed(1)}</span>
           <span className="bmi-unit-group">
-            <span className="bmi-unit">BMI</span>
-            <button className="bmi-info-btn" onClick={onInfoClick} aria-label="Thông tin về chỉ số BMI">
+            <span className="bmi-unit">Z-score</span>
+            <button className="bmi-info-btn" onClick={onInfoClick} aria-label="Thông tin về chỉ số Z-score">
               ⓘ
             </button>
           </span>
@@ -84,18 +106,18 @@ function HealthCard({
           {band.label}
         </div>
         <div className="bmi-track">
-          <span className="bmi-tick" style={{ left: '27.8%' }}>18.5</span>
-          <span className="bmi-tick" style={{ left: '47.4%' }}>23</span>
-          <span className="bmi-tick" style={{ left: '55.7%' }}>25</span>
+          <span className="bmi-tick" style={{ left: '25%' }}>-2</span>
+          <span className="bmi-tick" style={{ left: '75%' }}>2</span>
+          <span className="bmi-tick" style={{ left: '87.5%' }}>3</span>
           <span className="bmi-marker" style={{ left: `${pos}%` }} />
           <div className="bmi-bar">
-            {BMI_BANDS.map((b) => (
+            {Z_SCORE_BANDS.map((b) => (
               <span key={b.key} style={{ flex: b.weight, background: b.color }} />
             ))}
           </div>
         </div>
         <div className="bmi-caps">
-          {BMI_BANDS.map((b) => (
+          {Z_SCORE_BANDS.map((b) => (
             <span key={b.key} style={{ flex: b.weight }}>
               {b.label}
             </span>
@@ -160,35 +182,34 @@ function HealthHistorySheet({ history, onClose }: { history: HealthRecord[]; onC
   )
 }
 
-// "Bộ Y tế Việt Nam" BMI reference bands, mirroring BMI_BANDS' cut-offs above.
-function BmiInfoSheet({ onClose }: { onClose: () => void }) {
+// "Bộ Y tế Việt Nam" z-score reference bands, mirroring Z_SCORE_BANDS' cut-offs above.
+function ZScoreInfoSheet({ onClose }: { onClose: () => void }) {
   return (
     <OverlayPortal>
       <div className="scrim" onClick={onClose} />
       <div className="sheet">
         <div className="sheet-head">
-          <span className="t">Chỉ số BMI là gì?</span>
+          <span className="t">Chỉ số Z-score là gì?</span>
           <button className="icon-btn" onClick={onClose} aria-label="Đóng">
             ✕
           </button>
         </div>
         <div className="sheet-body" style={{ padding: '0 16px 20px' }}>
           <p style={{ fontSize: 13.5, lineHeight: 1.6, margin: '0 0 14px' }}>
-            BMI (Body Mass Index — chỉ số khối cơ thể) đánh giá tương quan giữa
-            chiều cao và cân nặng, tính theo công thức: cân nặng (kg) chia cho
-            bình phương chiều cao (m).
+            Z-score (chỉ số Z) đánh giá tình trạng dinh dưỡng của trẻ bằng cách
+            so sánh chỉ số BMI theo tuổi và giới tính của trẻ với quần thể
+            tham chiếu chuẩn tăng trưởng, thay vì chỉ dùng một ngưỡng BMI cố
+            định như người lớn.
           </p>
-          <p style={{ fontSize: 13.5, fontWeight: 700, margin: '0 0 14px', textAlign: 'center' }}>
-            BMI = Cân nặng / (Chiều cao x Chiều cao)
-          </p>
-          <p style={{ fontSize: 13.5, fontWeight: 700, margin: '0 0 6px' }}>
-            Ngưỡng khuyến nghị (theo Bộ Y tế Việt Nam):
+          <p style={{ fontSize: 13.5, lineHeight: 1.6, margin: '0 0 14px' }}>
+            Ngưỡng phân loại áp dụng theo Quyết định số 3777/QĐ-BYT ngày 16
+            tháng 12 năm 2024 của Bộ Y tế:
           </p>
           <ul style={{ fontSize: 13.5, lineHeight: 1.8, margin: 0, paddingLeft: 18 }}>
-            <li>Dưới 18.5: Thiếu cân</li>
-            <li>18.5 – 22.9: Bình thường</li>
-            <li>23.0 – 24.9: Thừa cân</li>
-            <li>Từ 25 trở lên: Béo phì</li>
+            <li>Dưới -2: Thiếu cân</li>
+            <li>-2 đến 2: Bình thường</li>
+            <li>Trên 2: Thừa cân</li>
+            <li>Trên 3: Béo phì</li>
           </ul>
         </div>
       </div>
@@ -237,7 +258,7 @@ export function StudentScreen({
 }: StudentScreenProps) {
   const [showPicker, setShowPicker] = useState(false)
   const [showHealthHistory, setShowHealthHistory] = useState(false)
-  const [showBmiInfo, setShowBmiInfo] = useState(false)
+  const [showZScoreInfo, setShowZScoreInfo] = useState(false)
   const student = getStudent(studentId)
   if (!student) return null
 
@@ -312,7 +333,8 @@ export function StudentScreen({
       <HealthCard
         heightCm={student.heightCm}
         weightKg={student.weightKg}
-        onInfoClick={() => setShowBmiInfo(true)}
+        zScore={student.zScore}
+        onInfoClick={() => setShowZScoreInfo(true)}
       />
 
       <div className="section-heading">Hoạt động gần đây</div>
@@ -365,7 +387,7 @@ export function StudentScreen({
         />
       )}
 
-      {showBmiInfo && <BmiInfoSheet onClose={() => setShowBmiInfo(false)} />}
+      {showZScoreInfo && <ZScoreInfoSheet onClose={() => setShowZScoreInfo(false)} />}
     </div>
   )
 }

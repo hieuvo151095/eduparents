@@ -152,6 +152,9 @@ export interface Student {
   // Chỉ số sức khoẻ (Học sinh screen) — cm / kg. BMI is derived, not stored.
   heightCm: number
   weightKg: number
+  // BMI-for-age z-score (per Quyết định 3777/QĐ-BYT). Stored directly since
+  // computing it needs WHO age/sex growth-reference tables not modeled here.
+  zScore: number
   // History shown in the "Lịch sử chỉ số sức khoẻ" sheet — newest first,
   // limited to the last 6 months (the default/only window shown to parents).
   // healthHistory[0] mirrors heightCm/weightKg above.
@@ -196,6 +199,7 @@ export const MOCK_STUDENTS: Student[] = [
     ],
     heightCm: 112,
     weightKg: 24,
+    zScore: 0.4,
     healthHistory: [
       { heightCm: 112, weightKg: 24, recordedAt: '01/09/2026' },
       { heightCm: 111, weightKg: 23.5, recordedAt: '01/08/2026' },
@@ -258,6 +262,7 @@ export const MOCK_STUDENTS: Student[] = [
     ],
     heightCm: 165,
     weightKg: 65,
+    zScore: 2.3,
     healthHistory: [
       { heightCm: 165, weightKg: 65, recordedAt: '15/08/2026' },
       { heightCm: 164, weightKg: 63, recordedAt: '15/06/2026' },
@@ -382,6 +387,7 @@ export const MOCK_STUDENTS: Student[] = [
     ],
     heightCm: 96,
     weightKg: 14,
+    zScore: -2.4,
     healthHistory: [
       { heightCm: 96, weightKg: 14, recordedAt: '01/09/2026' },
       { heightCm: 95, weightKg: 13.5, recordedAt: '01/08/2026' },
