@@ -136,6 +136,7 @@ export interface GoodBehavior {
 export interface HealthRecord {
   heightCm: number
   weightKg: number
+  zScore: number
   recordedAt: string
 }
 
@@ -201,12 +202,12 @@ export const MOCK_STUDENTS: Student[] = [
     weightKg: 24,
     zScore: 0.4,
     healthHistory: [
-      { heightCm: 112, weightKg: 24, recordedAt: '01/09/2026' },
-      { heightCm: 111, weightKg: 23.5, recordedAt: '01/08/2026' },
-      { heightCm: 110, weightKg: 23, recordedAt: '01/07/2026' },
-      { heightCm: 109, weightKg: 22.5, recordedAt: '01/06/2026' },
-      { heightCm: 108, weightKg: 22, recordedAt: '01/05/2026' },
-      { heightCm: 107, weightKg: 21.5, recordedAt: '01/04/2026' },
+      { heightCm: 112, weightKg: 24, zScore: 0.4, recordedAt: '01/09/2026' },
+      { heightCm: 111, weightKg: 23.5, zScore: 0.3, recordedAt: '01/08/2026' },
+      { heightCm: 110, weightKg: 23, zScore: 0.3, recordedAt: '01/07/2026' },
+      { heightCm: 109, weightKg: 22.5, zScore: 0.2, recordedAt: '01/06/2026' },
+      { heightCm: 108, weightKg: 22, zScore: 0.1, recordedAt: '01/05/2026' },
+      { heightCm: 107, weightKg: 21.5, zScore: 0.1, recordedAt: '01/04/2026' },
     ],
     balance: 12000,
     avatar: 'V',
@@ -264,9 +265,9 @@ export const MOCK_STUDENTS: Student[] = [
     weightKg: 65,
     zScore: 2.3,
     healthHistory: [
-      { heightCm: 165, weightKg: 65, recordedAt: '15/08/2026' },
-      { heightCm: 164, weightKg: 63, recordedAt: '15/06/2026' },
-      { heightCm: 163, weightKg: 61, recordedAt: '15/04/2026' },
+      { heightCm: 165, weightKg: 65, zScore: 2.3, recordedAt: '15/08/2026' },
+      { heightCm: 164, weightKg: 63, zScore: 2.1, recordedAt: '15/06/2026' },
+      { heightCm: 163, weightKg: 61, zScore: 1.9, recordedAt: '15/04/2026' },
     ],
     balance: 0,
     avatar: 'K',
@@ -389,12 +390,12 @@ export const MOCK_STUDENTS: Student[] = [
     weightKg: 14,
     zScore: -2.4,
     healthHistory: [
-      { heightCm: 96, weightKg: 14, recordedAt: '01/09/2026' },
-      { heightCm: 95, weightKg: 13.5, recordedAt: '01/08/2026' },
-      { heightCm: 94, weightKg: 13, recordedAt: '01/07/2026' },
-      { heightCm: 93, weightKg: 12.5, recordedAt: '01/06/2026' },
-      { heightCm: 92, weightKg: 12, recordedAt: '01/05/2026' },
-      { heightCm: 91.5, weightKg: 11.5, recordedAt: '01/04/2026' },
+      { heightCm: 96, weightKg: 14, zScore: -2.4, recordedAt: '01/09/2026' },
+      { heightCm: 95, weightKg: 13.5, zScore: -2.3, recordedAt: '01/08/2026' },
+      { heightCm: 94, weightKg: 13, zScore: -2.3, recordedAt: '01/07/2026' },
+      { heightCm: 93, weightKg: 12.5, zScore: -2.2, recordedAt: '01/06/2026' },
+      { heightCm: 92, weightKg: 12, zScore: -2.1, recordedAt: '01/05/2026' },
+      { heightCm: 91.5, weightKg: 11.5, zScore: -2.0, recordedAt: '01/04/2026' },
     ],
     balance: 0,
     avatar: 'L',

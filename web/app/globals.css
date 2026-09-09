@@ -1110,6 +1110,8 @@ img { max-width: 100%; display: block; }
 }
 .bmi-history-value { font-weight: 700; }
 .bmi-history-band { font-size: 11px; font-weight: 600; margin-top: 2px; }
+.health-history-metrics { font-weight: 700; white-space: nowrap; }
+.health-history-sub { font-size: 11px; color: var(--c-gray-500); margin-top: 2px; }
 .bmi-badge {
   display: inline-block;
   margin-top: 8px;

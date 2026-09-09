@@ -5,23 +5,6 @@ import { MOCK_STUDENTS, getStudent, type HealthRecord } from '@/lib/mock-data'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
 import { OverlayPortal } from '@/components/parents/shared/overlay-portal'
 
-// Chỉ số sức khoẻ — BMI classification per the standard Asian cut-offs used
-// in the brief: <18.5 Thiếu cân, 18.5–22.9 Bình thường, 23.0–24.9 Thừa cân,
-// ≥25 Béo phì. Each band has a colour that drives both its bar segment and
-// the category badge. `weight` is the relative width of the segment on the
-// gauge — chosen to match the "BMI sample" mockup, not the numeric range.
-// Still used for the "Lịch sử chỉ số sức khoẻ" history table.
-const BMI_BANDS = [
-  { key: 'under', label: 'Thiếu cân', color: '#5c7cd1', max: 18.5, weight: 27.8 },
-  { key: 'normal', label: 'Bình thường', color: '#5bb87a', max: 23, weight: 19.6 },
-  { key: 'over', label: 'Thừa cân', color: '#d6a02c', max: 25, weight: 8.3 },
-  { key: 'obese', label: 'Béo phì', color: '#cc9ba1', max: Infinity, weight: 44.3 },
-]
-
-function bmiBand(bmi: number) {
-  return BMI_BANDS.find((b) => bmi < b.max) ?? BMI_BANDS[BMI_BANDS.length - 1]
-}
-
 // Chỉ số Z (BMI-for-age z-score) classification per Quyết định số 3777/QĐ-BYT
 // ngày 16/12/2024 của Bộ Y tế: z < -2 Thiếu cân, -2 ≤ z ≤ 2 Bình thường,
 // z > 2 Thừa cân, z > 3 Béo phì (obese is a stricter sub-range of overweight,
@@ -149,22 +132,23 @@ function HealthHistorySheet({ history, onClose }: { history: HealthRecord[]; onC
             <table className="kv-table" style={{ margin: '0 16px', width: 'calc(100% - 32px)' }}>
               <thead>
                 <tr>
-                  <th>Chiều cao</th>
-                  <th>Cân nặng</th>
-                  <th>BMI</th>
+                  <th>Chỉ số</th>
+                  <th>Z-score</th>
                   <th>Thời gian ghi nhận</th>
                 </tr>
               </thead>
               <tbody>
                 {history.map((h, i) => {
                   const bmi = h.weightKg / (h.heightCm / 100) ** 2
-                  const band = bmiBand(bmi)
+                  const band = zScoreBand(h.zScore)
                   return (
                     <tr key={i}>
-                      <td>{h.heightCm} cm</td>
-                      <td>{h.weightKg} kg</td>
                       <td>
-                        <div className="bmi-history-value">{bmi.toFixed(1)}</div>
+                        <div className="health-history-metrics">{h.heightCm} cm · {h.weightKg} kg</div>
+                        <div className="health-history-sub">BMI {bmi.toFixed(1)}</div>
+                      </td>
+                      <td>
+                        <div className="bmi-history-value">{h.zScore.toFixed(1)}</div>
                         <div className="bmi-history-band" style={{ color: band.color }}>
                           {band.label}
                         </div>
