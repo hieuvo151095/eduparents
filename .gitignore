@@ -1,1 +1,10 @@
+# Common ignores
 .DS_Store
+node_modules/
+.next/
+.pnpm-store/
+*.tsbuildinfo
+next-env.d.ts
+
+# Local envs
+.env*.local
