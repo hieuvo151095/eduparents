@@ -20,6 +20,32 @@ function zScoreBand(z: number) {
   return Z_SCORE_BANDS.find((b) => z < b.max) ?? Z_SCORE_BANDS[Z_SCORE_BANDS.length - 1]
 }
 
+// High-level, non-diagnostic pointers per band — intentionally generic
+// ("ăn đa dạng", "vận động phù hợp") rather than prescriptive dosing/menus,
+// since anything more specific belongs with a doctor, not this app.
+const Z_SCORE_ADVICE: Record<string, string[]> = {
+  under: [
+    'Cho bé ăn đủ bữa với thực phẩm đa dạng, giàu năng lượng và đạm (thịt, cá, trứng, sữa).',
+    'Đảm bảo bé ngủ đủ giấc và vận động phù hợp lứa tuổi để ăn ngon, hấp thu tốt hơn.',
+    'Theo dõi cân nặng, chiều cao định kỳ để sớm thấy sự thay đổi.',
+  ],
+  normal: [
+    'Duy trì chế độ ăn cân đối, đủ các nhóm chất (đạm, tinh bột, chất béo, vitamin).',
+    'Khuyến khích bé vận động, vui chơi ngoài trời mỗi ngày.',
+    'Tiếp tục theo dõi định kỳ để sớm phát hiện thay đổi bất thường.',
+  ],
+  over: [
+    'Điều chỉnh khẩu phần ăn, hạn chế đồ ngọt, nước có gas và đồ chiên rán.',
+    'Tăng thời gian vận động, giảm thời gian xem màn hình của bé.',
+    'Theo dõi sát cân nặng, chiều cao trong các lần đo tiếp theo.',
+  ],
+  obese: [
+    'Xây dựng lại chế độ ăn khoa học: giảm tinh bột/đường, tăng rau xanh.',
+    'Tăng cường vận động thể chất hằng ngày, hạn chế lối sống tĩnh tại.',
+    'Nên đưa bé đi khám chuyên khoa dinh dưỡng để được theo dõi sát sao.',
+  ],
+}
+
 // Position (in %) of a z-score along the gauge, clamped to [-4, 4] and
 // piecewise-linear between the band boundaries (-2 / 2 / 3) so the marker
 // lands proportionally inside its own segment, matching the boundary ticks.
@@ -46,11 +72,13 @@ function HealthCard({
   weightKg,
   zScore,
   onInfoClick,
+  onAdviceClick,
 }: {
   heightCm: number
   weightKg: number
   zScore: number
   onInfoClick: () => void
+  onAdviceClick: () => void
 }) {
   const bmi = weightKg / (heightCm / 100) ** 2
   const band = zScoreBand(zScore)
@@ -106,8 +134,70 @@ function HealthCard({
             </span>
           ))}
         </div>
+
+        <button className="zscore-advice-row" onClick={onAdviceClick}>
+          <span className="zscore-advice-row-icon">💡</span>
+          <span className="zscore-advice-row-label">Gợi ý cho ba mẹ</span>
+          <span className="zscore-advice-row-chevron">›</span>
+        </button>
       </div>
     </div>
+  )
+}
+
+// Simple, coarse trend read on the two most recent history entries — not a
+// regression/slope, just "did it move enough to mention" so the advice sheet
+// can lead with something specific to this child instead of static text.
+function zScoreTrendLine(history: HealthRecord[]): string | null {
+  if (history.length < 2) return null
+  const [latest, previous] = history
+  const delta = latest.zScore - previous.zScore
+  if (Math.abs(delta) < 0.15) {
+    return `Z-score ổn định so với lần đo trước (${previous.recordedAt}).`
+  }
+  const dir = delta > 0 ? 'tăng' : 'giảm'
+  return `Z-score đã ${dir} ${Math.abs(delta).toFixed(1)} so với lần đo trước (${previous.recordedAt}).`
+}
+
+function ZScoreAdviceSheet({
+  zScore,
+  history,
+  onClose,
+}: {
+  zScore: number
+  history: HealthRecord[]
+  onClose: () => void
+}) {
+  const band = zScoreBand(zScore)
+  const trendLine = zScoreTrendLine(history)
+
+  return (
+    <OverlayPortal>
+      <div className="scrim" onClick={onClose} />
+      <div className="sheet">
+        <div className="sheet-head">
+          <span className="t">Gợi ý cho ba mẹ</span>
+          <button className="icon-btn" onClick={onClose} aria-label="Đóng">
+            ✕
+          </button>
+        </div>
+        <div className="sheet-body" style={{ padding: '0 16px 20px' }}>
+          <p style={{ fontSize: 13.5, lineHeight: 1.6, margin: '0 0 14px' }}>
+            Bé đang ở nhóm <span style={{ fontWeight: 700, color: band.color }}>{band.label}</span>
+            {trendLine ? <>. {trendLine}</> : '.'}
+          </p>
+          <ul className="zscore-advice-list">
+            {Z_SCORE_ADVICE[band.key].map((line, i) => (
+              <li key={i}>{line}</li>
+            ))}
+          </ul>
+          <div className="zscore-advice-note">
+            Đây là gợi ý tham khảo ở mức cơ bản. Để có tư vấn cụ thể, ba mẹ nên
+            đưa bé đi khám bác sĩ.
+          </div>
+        </div>
+      </div>
+    </OverlayPortal>
   )
 }
 
@@ -243,6 +333,7 @@ export function StudentScreen({
   const [showPicker, setShowPicker] = useState(false)
   const [showHealthHistory, setShowHealthHistory] = useState(false)
   const [showZScoreInfo, setShowZScoreInfo] = useState(false)
+  const [showZScoreAdvice, setShowZScoreAdvice] = useState(false)
   const student = getStudent(studentId)
   if (!student) return null
 
@@ -319,6 +410,7 @@ export function StudentScreen({
         weightKg={student.weightKg}
         zScore={student.zScore}
         onInfoClick={() => setShowZScoreInfo(true)}
+        onAdviceClick={() => setShowZScoreAdvice(true)}
       />
 
       <div className="section-heading">Hoạt động gần đây</div>
@@ -372,6 +464,14 @@ export function StudentScreen({
       )}
 
       {showZScoreInfo && <ZScoreInfoSheet onClose={() => setShowZScoreInfo(false)} />}
+
+      {showZScoreAdvice && (
+        <ZScoreAdviceSheet
+          zScore={student.zScore}
+          history={student.healthHistory}
+          onClose={() => setShowZScoreAdvice(false)}
+        />
+      )}
     </div>
   )
 }
