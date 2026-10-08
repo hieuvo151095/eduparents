@@ -1,9 +1,11 @@
 'use client'
 
-import { useState } from 'react'
-import { MOCK_STUDENTS, getStudent, type HealthRecord } from '@/lib/mock-data'
+import { useState, useEffect } from 'react'
+import { MOCK_STUDENTS, getStudent, isMamNonStudent, type HealthRecord } from '@/lib/mock-data'
 import { StudentPickerSheet } from '@/components/parents/shared/student-picker-sheet'
 import { OverlayPortal } from '@/components/parents/shared/overlay-portal'
+import { SurveyCard } from '@/components/parents/survey/survey-card'
+import { getSurveyState, isParentEligibleForSurvey, type SurveyState } from '@/lib/survey-storage'
 
 // Chỉ số Z (BMI-for-age z-score) classification per Quyết định số 3777/QĐ-BYT
 // ngày 16/12/2024 của Bộ Y tế: z < -2 Thiếu cân, -2 ≤ z ≤ 2 Bình thường,
@@ -291,11 +293,144 @@ function ZScoreInfoSheet({ onClose }: { onClose: () => void }) {
   )
 }
 
+// "Cài đặt" bottom sheet per Image 4
+function StudentSettingsSheet({
+  isLocked,
+  onToggleLock,
+  onClose,
+  onActionClick,
+}: {
+  isLocked: boolean
+  onToggleLock: () => void
+  onClose: () => void
+  onActionClick: (action: string) => void
+}) {
+  return (
+    <OverlayPortal>
+      <div className="scrim" onClick={onClose} />
+      <div className="sheet eco-settings-sheet">
+        <div className="eco-settings-header">
+          <div className="eco-settings-title">Cài đặt</div>
+          <button className="eco-settings-close-btn" onClick={onClose} aria-label="Đóng">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="eco-settings-list">
+          {/* 1. Khóa thẻ khẩn cấp */}
+          <div className="eco-settings-row" onClick={onToggleLock}>
+            <div className="eco-settings-left">
+              <div className="eco-settings-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+              </div>
+              <span className="eco-settings-label">Khóa thẻ khẩn cấp</span>
+            </div>
+            <div className="eco-settings-right" onClick={(e) => e.stopPropagation()}>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={isLocked}
+                className={`eco-switch ${isLocked ? 'active' : ''}`}
+                onClick={onToggleLock}
+                aria-label="Khóa thẻ khẩn cấp"
+              >
+                <span className="eco-switch-thumb" />
+              </button>
+            </div>
+          </div>
+
+          {/* 2. Nạp tiền tự động */}
+          <div className="eco-settings-row" onClick={() => onActionClick('auto_topup')}>
+            <div className="eco-settings-left">
+              <div className="eco-settings-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="5" width="20" height="14" rx="2" />
+                  <line x1="2" y1="10" x2="22" y2="10" />
+                  <circle cx="16" cy="15" r="2.5" />
+                  <line x1="16" y1="13.5" x2="16" y2="16.5" />
+                  <line x1="14.5" y1="15" x2="17.5" y2="15" />
+                </svg>
+              </div>
+              <span className="eco-settings-label">Nạp tiền tự động</span>
+            </div>
+            <div className="eco-settings-right">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="eco-settings-chevron">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </div>
+          </div>
+
+          {/* 3. Cấu hình hạn mức */}
+          <div className="eco-settings-row" onClick={() => onActionClick('limit')}>
+            <div className="eco-settings-left">
+              <div className="eco-settings-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2a10 10 0 0 0-7.07 17.07l1.41-1.41A8 8 0 1 1 12 20a7.96 7.96 0 0 1-4.24-1.22" />
+                  <circle cx="12" cy="12" r="2" />
+                  <path d="M12 12l3.5-3.5" />
+                </svg>
+              </div>
+              <span className="eco-settings-label">Cấu hình hạn mức</span>
+            </div>
+            <div className="eco-settings-right">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="eco-settings-chevron">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </div>
+          </div>
+
+          {/* 4. Cấp lại thẻ */}
+          <div className="eco-settings-row" onClick={() => onActionClick('reissue')}>
+            <div className="eco-settings-left">
+              <div className="eco-settings-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21.5 2v6h-6" />
+                  <path d="M21.34 15.57a10 10 0 1 1-.57-8.38l.67-1.19" />
+                </svg>
+              </div>
+              <span className="eco-settings-label">Cấp lại thẻ</span>
+            </div>
+            <div className="eco-settings-right">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="eco-settings-chevron">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </div>
+          </div>
+
+          {/* 5. Hủy liên kết */}
+          <div className="eco-settings-row" onClick={() => onActionClick('unlink')}>
+            <div className="eco-settings-left">
+              <div className="eco-settings-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="15" y1="9" x2="9" y2="15" />
+                  <line x1="9" y1="9" x2="15" y2="15" />
+                </svg>
+              </div>
+              <span className="eco-settings-label">Hủy liên kết</span>
+            </div>
+            <div className="eco-settings-right">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="eco-settings-chevron">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </OverlayPortal>
+  )
+}
+
 // Mirrors SCREENS.student in ../../scripts/app.js — a single (non-swiping)
 // page1 icon grid. "Đóng học phí", "Nạp điểm vào thẻ", "Báo vắng", "Bài tập"
 // and "Kết quả học tập" are wired; "Lịch sử chi tiêu", "Thời khoá biểu" and
-// "Theo dõi điểm danh" stay inert (not rebuilt yet). "Cài đặt" (⚙) has no
-// reference screenshot in the vanilla app either — stays inert here too.
+// "Theo dõi điểm danh" stay inert (not rebuilt yet).
 const PAGE1 = [
   { id: 'fee', icon: '▣', label: 'Đóng học phí' },
   { id: 'topup', icon: '◈', label: 'Nạp điểm vào thẻ' },
@@ -317,6 +452,8 @@ interface StudentScreenProps {
   onOpenAbsence: (studentId: string) => void
   onOpenHomework: (studentId: string) => void
   onOpenResults: (studentId: string) => void
+  onOpenDevelopment?: (studentId: string) => void
+  onOpenSurvey?: () => void
 }
 
 export function StudentScreen({
@@ -329,22 +466,89 @@ export function StudentScreen({
   onOpenAbsence,
   onOpenHomework,
   onOpenResults,
+  onOpenDevelopment,
+  onOpenSurvey,
 }: StudentScreenProps) {
   const [showPicker, setShowPicker] = useState(false)
   const [showHealthHistory, setShowHealthHistory] = useState(false)
   const [showZScoreInfo, setShowZScoreInfo] = useState(false)
   const [showZScoreAdvice, setShowZScoreAdvice] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
+  const [isCardLocked, setIsCardLocked] = useState(false)
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const [surveyState, setSurveyState] = useState<SurveyState>(getSurveyState)
+
+  useEffect(() => {
+    setSurveyState(getSurveyState())
+  }, [showSettings])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('scroll') === 'survey') {
+        setTimeout(() => {
+          const el = document.querySelector('.eco-survey-card-wrapper')
+          if (el) el.scrollIntoView({ behavior: 'instant', block: 'center' })
+        }, 150)
+      }
+    }
+  }, [])
+
   const student = getStudent(studentId)
   if (!student) return null
 
+  const triggerToast = (msg: string) => {
+    setToastMessage(msg)
+    setTimeout(() => {
+      setToastMessage((cur) => (cur === msg ? null : cur))
+    }, 2800)
+  }
+
+  const handleSettingsAction = (action: string) => {
+    if (action === 'auto_topup') {
+      setShowSettings(false)
+      onOpenTopup(student.id)
+    } else if (action === 'limit') {
+      setShowSettings(false)
+      triggerToast('Cấu hình hạn mức chi tiêu: tối đa 200.000đ/ngày')
+    } else if (action === 'reissue') {
+      setShowSettings(false)
+      triggerToast('Yêu cầu cấp lại thẻ đã được gửi tới nhà trường')
+    } else if (action === 'unlink') {
+      setShowSettings(false)
+      triggerToast('Vui lòng liên hệ nhà trường để hủy liên kết học sinh')
+    }
+  }
+
+  const handleToggleLock = () => {
+    const nextLocked = !isCardLocked
+    setIsCardLocked(nextLocked)
+    triggerToast(nextLocked ? 'Đã kích hoạt khóa thẻ khẩn cấp' : 'Đã mở khóa thẻ học sinh')
+  }
+
   return (
-    <div className="screen">
+    <div className="screen" style={{ position: 'relative' }}>
+      {toastMessage && (
+        <div className="eco-toast-notice">
+          {toastMessage}
+        </div>
+      )}
+
       <div className="topbar">
         <button className="icon-btn" onClick={onBack} aria-label="Quay lại">
           ‹
         </button>
         <div className="topbar-title">Học sinh</div>
-        <span className="icon-btn-ghost" />
+        <button
+          className="icon-btn"
+          onClick={() => setShowSettings(true)}
+          aria-label="Cài đặt thẻ học sinh"
+        >
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+        </button>
       </div>
 
       <div className="student-header">
@@ -368,7 +572,14 @@ export function StudentScreen({
       </div>
 
       <div className="balance-row">
-        <span>Số dư thẻ</span>
+        <span>
+          Số dư thẻ
+          {isCardLocked && (
+            <span style={{ marginLeft: 8, fontSize: 10.5, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: 'var(--c-ink)', color: 'var(--c-white)' }}>
+              ĐÃ KHÓA
+            </span>
+          )}
+        </span>
         <span className="value">{student.balance.toLocaleString('vi-VN')} điểm</span>
       </div>
 
@@ -412,6 +623,90 @@ export function StudentScreen({
         onInfoClick={() => setShowZScoreInfo(true)}
         onAdviceClick={() => setShowZScoreAdvice(true)}
       />
+
+      {isMamNonStudent(student) && onOpenDevelopment && (
+        <>
+          <div className="section-heading section-heading-row" style={{ marginTop: '16px' }}>
+            <span>Tiến trình phát triển</span>
+            <button
+              onClick={() => onOpenDevelopment(student.id)}
+              style={{
+                fontSize: '12px',
+                color: '#2563EB',
+                fontWeight: '600',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              Xem chi tiết ›
+            </button>
+          </div>
+          <div
+            onClick={() => onOpenDevelopment(student.id)}
+            style={{
+              background: '#FFFFFF',
+              border: '1px solid #E5E7EB',
+              borderRadius: '14px',
+              padding: '14px 16px',
+              margin: '0 16px',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              cursor: 'pointer',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '10px',
+                  background: '#EEF2FF',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '20px',
+                }}
+              >
+                🎯
+              </div>
+              <div>
+                <div style={{ fontSize: '13.5px', fontWeight: '700', color: '#1F2937' }}>
+                  La bàn phát triển 5 lĩnh vực
+                </div>
+                <div style={{ fontSize: '11.5px', color: '#6B7280', marginTop: '2px' }}>
+                  Theo Thông tư 51/2020/TT-BGDĐT
+                </div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span
+                style={{
+                  background: '#ECFDF5',
+                  color: '#059669',
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  padding: '3px 8px',
+                  borderRadius: '12px',
+                }}
+              >
+                Chi tiết
+              </span>
+              <span style={{ fontSize: '16px', color: '#9CA3AF' }}>›</span>
+            </div>
+          </div>
+        </>
+      )}
+
+      {onOpenSurvey && (
+        <SurveyCard
+          isEligible={isParentEligibleForSurvey(surveyState)}
+          lastSubmission={surveyState.lastSubmission}
+          onOpenSurvey={onOpenSurvey}
+        />
+      )}
 
       <div className="section-heading">Hoạt động gần đây</div>
       <div className="recent-frame">
@@ -470,6 +765,15 @@ export function StudentScreen({
           zScore={student.zScore}
           history={student.healthHistory}
           onClose={() => setShowZScoreAdvice(false)}
+        />
+      )}
+
+      {showSettings && (
+        <StudentSettingsSheet
+          isLocked={isCardLocked}
+          onToggleLock={handleToggleLock}
+          onClose={() => setShowSettings(false)}
+          onActionClick={handleSettingsAction}
         />
       )}
     </div>

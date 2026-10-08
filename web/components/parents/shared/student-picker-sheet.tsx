@@ -42,8 +42,8 @@ export function StudentPickerSheet({
                 <div className="student-code">{s.code}</div>
               </div>
               <div className="right">
-                <div className="lbl">Số dư thẻ</div>
-                <div className="val">{s.balance.toLocaleString('vi-VN')} điểm</div>
+                <div className="lbl">Lớp</div>
+                <div className="val">{s.className}</div>
               </div>
             </div>
           ))}

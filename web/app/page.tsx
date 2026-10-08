@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
-import { ParentsHomeScreen } from '@/components/parents/home-screen'
+import { useState, useRef, useEffect } from 'react'
+import { EcoMeHomeScreen } from '@/components/parents/home/eco-me-home-screen'
+import { ServicesListScreen } from '@/components/parents/services/services-list-screen'
 import { StudentScreen } from '@/components/parents/student-screen'
 import { ProfileApp } from '@/components/parents/profile'
 import { PhieuBeNgoanApp } from '@/components/parents/phieu-be-ngoan'
+import { ChildDevelopmentScreen } from '@/components/parents/development'
 import { FeeApp } from '@/components/parents/fee'
 import { TopupApp } from '@/components/parents/topup'
 import { AbsenceApp } from '@/components/parents/absence'
@@ -12,27 +14,16 @@ import { HomeworkApp } from '@/components/parents/homework'
 import { ResultsApp } from '@/components/parents/results'
 import { LinkStudentApp } from '@/components/parents/link-student'
 import { HelpApp } from '@/components/parents/help'
+import { SurveyScreen, SurveyPromptSheet } from '@/components/parents/survey'
+import { shouldShowSurveyPrompt, dismissSurveyPrompt } from '@/lib/survey-storage'
 
-// Mirrors the single-page phone-frame shell in eduteachers' app/page.tsx —
-// one real Next.js route, top-level screen state via useState (no router
-// library), each feature is a self-contained component under
-// components/parents/<feature>/. The frame chrome itself (notch, side
-// buttons, status bar icons) is ported from ../index.html + ../styles/main.css
-// (the vanilla app's own iPhone mockup) rather than eduteachers' Dynamic
-// Island frame, to keep eduparents' existing visual identity.
-//
-// `returnScreen` stands in for the vanilla app's navigation stack: features
-// entered from a student context (Fee, Topup, Báo vắng, Bài tập, Kết quả
-// học tập) can come from Home (via the student picker) or from Học sinh
-// Homescreen directly, and their topbar "back" button must return to
-// whichever one it came from — same as App.back() popping exactly one level
-// in scripts/app.js. "Phiếu bé ngoan", "Hướng dẫn sử dụng", and "Liên kết
-// học sinh" are only ever entered from Home, so they always return there.
 type Screen =
   | 'home'
+  | 'services'
   | 'student'
   | 'profile'
   | 'phieu-be-ngoan'
+  | 'development'
   | 'fee'
   | 'topup'
   | 'absence'
@@ -40,11 +31,41 @@ type Screen =
   | 'results'
   | 'link-student'
   | 'help'
+  | 'survey'
 
 export default function Page() {
   const [screen, setScreen] = useState<Screen>('home')
   const [returnScreen, setReturnScreen] = useState<Screen>('home')
   const [activeStudentId, setActiveStudentId] = useState<string | null>(null)
+  const [showSurveyPrompt, setShowSurveyPrompt] = useState(false)
+  const mainRef = useRef<HTMLElement>(null)
+
+  // Evaluate survey prompt eligibility on mount (>=14d active, not submitted within 60d, not dismissed within 7 calendar days)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const s = params.get('screen') as Screen
+      if (s) {
+        setScreen(s)
+        if (s === 'student') setActiveStudentId('vy')
+        if (params.get('prompt') === '1') setShowSurveyPrompt(true)
+        if (params.get('prompt') === '0') setShowSurveyPrompt(false)
+        return
+      }
+    }
+    if (shouldShowSurveyPrompt()) {
+      setShowSurveyPrompt(true)
+    }
+  }, [])
+
+  // Scroll to top immediately when switching screens or students
+  useEffect(() => {
+    if (mainRef.current) {
+      mainRef.current.scrollTop = 0
+    }
+    window.scrollTo(0, 0)
+  }, [screen, activeStudentId])
+
 
   return (
     <div className="desktop-backdrop">
@@ -70,16 +91,26 @@ export default function Page() {
               </span>
             </div>
 
-            <main className="screen-root">
+            <main className="screen-root" ref={mainRef}>
               {screen === 'home' && (
-                <ParentsHomeScreen
+                <EcoMeHomeScreen
                   onNavigateToStudent={(studentId) => {
                     setActiveStudentId(studentId)
+                    setReturnScreen('home')
                     setScreen('student')
+                  }}
+                  onNavigateToServices={() => {
+                    setScreen('services')
                   }}
                   onNavigateToPhieuBeNgoan={(studentId) => {
                     setActiveStudentId(studentId)
+                    setReturnScreen('home')
                     setScreen('phieu-be-ngoan')
+                  }}
+                  onNavigateToDevelopment={(studentId) => {
+                    setActiveStudentId(studentId)
+                    setReturnScreen('home')
+                    setScreen('development')
                   }}
                   onNavigateToFee={(studentId) => {
                     setActiveStudentId(studentId)
@@ -111,6 +142,47 @@ export default function Page() {
                 />
               )}
 
+              {screen === 'services' && (
+                <ServicesListScreen
+                  onBack={() => setScreen('home')}
+                  onNavigateToFee={(studentId) => {
+                    setActiveStudentId(studentId)
+                    setReturnScreen('services')
+                    setScreen('fee')
+                  }}
+                  onNavigateToTopup={(studentId) => {
+                    setActiveStudentId(studentId)
+                    setReturnScreen('services')
+                    setScreen('topup')
+                  }}
+                  onNavigateToDevelopment={(studentId) => {
+                    setActiveStudentId(studentId)
+                    setReturnScreen('services')
+                    setScreen('development')
+                  }}
+                  onNavigateToAbsence={(studentId) => {
+                    setActiveStudentId(studentId)
+                    setReturnScreen('services')
+                    setScreen('absence')
+                  }}
+                  onNavigateToHomework={(studentId) => {
+                    setActiveStudentId(studentId)
+                    setReturnScreen('services')
+                    setScreen('homework')
+                  }}
+                  onNavigateToResults={(studentId) => {
+                    setActiveStudentId(studentId)
+                    setReturnScreen('services')
+                    setScreen('results')
+                  }}
+                  onNavigateToPhieuBeNgoan={(studentId) => {
+                    setActiveStudentId(studentId)
+                    setReturnScreen('services')
+                    setScreen('phieu-be-ngoan')
+                  }}
+                />
+              )}
+
               {screen === 'student' && activeStudentId && (
                 <StudentScreen
                   studentId={activeStudentId}
@@ -119,6 +191,11 @@ export default function Page() {
                   onOpenProfile={(studentId) => {
                     setActiveStudentId(studentId)
                     setScreen('profile')
+                  }}
+                  onOpenDevelopment={(studentId) => {
+                    setActiveStudentId(studentId)
+                    setReturnScreen('student')
+                    setScreen('development')
                   }}
                   onOpenFee={(studentId) => {
                     setActiveStudentId(studentId)
@@ -145,6 +222,10 @@ export default function Page() {
                     setReturnScreen('student')
                     setScreen('results')
                   }}
+                  onOpenSurvey={() => {
+                    setReturnScreen('student')
+                    setScreen('survey')
+                  }}
                 />
               )}
 
@@ -154,6 +235,19 @@ export default function Page() {
 
               {screen === 'phieu-be-ngoan' && activeStudentId && (
                 <PhieuBeNgoanApp studentId={activeStudentId} onBack={() => setScreen('home')} />
+              )}
+
+              {screen === 'development' && activeStudentId && (
+                <ChildDevelopmentScreen
+                  studentId={activeStudentId}
+                  onBack={() => setScreen(returnScreen)}
+                  onSelectStudent={setActiveStudentId}
+                  onNavigateToResults={(studentId) => {
+                    setActiveStudentId(studentId)
+                    setReturnScreen('development')
+                    setScreen('results')
+                  }}
+                />
               )}
 
               {screen === 'fee' && activeStudentId && (
@@ -183,7 +277,32 @@ export default function Page() {
               {screen === 'link-student' && <LinkStudentApp onBack={() => setScreen('home')} />}
 
               {screen === 'help' && <HelpApp onBack={() => setScreen('home')} />}
+
+              {screen === 'survey' && (
+                <SurveyScreen
+                  onBack={() => setScreen(returnScreen)}
+                  onSuccess={() => {
+                    setScreen(returnScreen)
+                    setShowSurveyPrompt(false)
+                  }}
+                />
+              )}
             </main>
+
+            {/* Entry Point 1: 30-second in-app survey prompt bottom sheet */}
+            {showSurveyPrompt && (
+              <SurveyPromptSheet
+                onTakeSurvey={() => {
+                  setShowSurveyPrompt(false)
+                  setReturnScreen(screen)
+                  setScreen('survey')
+                }}
+                onDismiss={() => {
+                  dismissSurveyPrompt()
+                  setShowSurveyPrompt(false)
+                }}
+              />
+            )}
 
             <div className="overlay-root" id="overlay-root" />
           </div>

@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "project": "Child Development Milestones - Kindergarten Legal Alignment",
+  "phase": "planning-deep-research",
+  "quality_gates": {
+    "minimum_sources": 10,
+    "minimum_primary_sources": 3,
+    "minimum_evidence_items": 15,
+    "require_contradictions_reviewed": true
+  }
+}

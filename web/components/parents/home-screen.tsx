@@ -23,23 +23,24 @@ const PAGE1 = [
 ]
 
 const PAGE2 = [
+  { id: 'development', icon: '◈', label: 'Tiến trình phát triển' },
   { id: 'hocba', icon: '▩', label: 'Học bạ số' },
   { id: 'thucdon', icon: '▥', label: 'Thực đơn' },
   { id: 'hoatdong', icon: '◐', label: 'Hoạt động' },
   { id: 'hoadon', icon: '▤', label: 'Hóa đơn' },
   { id: 'danthuoc', icon: '✛', label: 'Dặn thuốc' },
   { id: 'bangtin', icon: '▬', label: 'Bảng tin' },
-  { id: 'nhatky', icon: '▭', label: 'Nhật ký chăm sóc' },
   { id: 'goodbehavior', icon: '★', label: 'Phiếu bé ngoan' },
 ]
 
-type PickerIntent = 'fee' | 'topup' | 'goodbehavior' | 'absence' | 'homework' | 'results'
+type PickerIntent = 'fee' | 'topup' | 'goodbehavior' | 'development' | 'absence' | 'homework' | 'results'
 
 const WIRED_PAGE1_IDS = new Set(['fee', 'topup', 'absence', 'homework', 'results'])
 
 interface ParentsHomeScreenProps {
   onNavigateToStudent: (studentId: string) => void
   onNavigateToPhieuBeNgoan: (studentId: string) => void
+  onNavigateToDevelopment: (studentId: string) => void
   onNavigateToFee: (studentId: string) => void
   onNavigateToTopup: (studentId: string) => void
   onNavigateToAbsence: (studentId: string) => void
@@ -52,6 +53,7 @@ interface ParentsHomeScreenProps {
 export function ParentsHomeScreen({
   onNavigateToStudent,
   onNavigateToPhieuBeNgoan,
+  onNavigateToDevelopment,
   onNavigateToFee,
   onNavigateToTopup,
   onNavigateToAbsence,
@@ -76,7 +78,7 @@ export function ParentsHomeScreen({
   const pickerStudents =
     pickerIntent === 'topup'
       ? MOCK_STUDENTS.filter((s) => s.supportsTopUp)
-      : pickerIntent === 'goodbehavior'
+      : pickerIntent === 'goodbehavior' || pickerIntent === 'development'
         ? MOCK_STUDENTS.filter(isMamNonStudent)
         : MOCK_STUDENTS
 
@@ -85,6 +87,7 @@ export function ParentsHomeScreen({
     if (pickerIntent === 'fee') onNavigateToFee(studentId)
     else if (pickerIntent === 'topup') onNavigateToTopup(studentId)
     else if (pickerIntent === 'goodbehavior') onNavigateToPhieuBeNgoan(studentId)
+    else if (pickerIntent === 'development') onNavigateToDevelopment(studentId)
     else if (pickerIntent === 'absence') onNavigateToAbsence(studentId)
     else if (pickerIntent === 'homework') onNavigateToHomework(studentId)
     else if (pickerIntent === 'results') onNavigateToResults(studentId)
@@ -120,13 +123,13 @@ export function ParentsHomeScreen({
           </div>
           <div className="icon-grid-page">
             {PAGE2.map(({ id, icon, label }) => {
-              const isGoodBehavior = id === 'goodbehavior'
+              const wired = id === 'goodbehavior' || id === 'development'
               return (
                 <button
                   key={id}
                   className="icon-item"
-                  disabled={!isGoodBehavior}
-                  onClick={isGoodBehavior ? () => setPickerIntent('goodbehavior') : undefined}
+                  disabled={!wired}
+                  onClick={wired ? () => setPickerIntent(id as PickerIntent) : undefined}
                 >
                   <span className="icon-glyph">{icon}</span>
                   <span className="icon-label">{label}</span>
@@ -156,8 +159,6 @@ export function ParentsHomeScreen({
             <div className="kv-value">{s.school}</div>
             <div className="kv-label">Lớp</div>
             <div className="kv-value">{s.className}</div>
-            <div className="kv-label">Số dư thẻ</div>
-            <div className="kv-value balance">{s.balance.toLocaleString('vi-VN')} điểm</div>
           </div>
         </div>
       ))}

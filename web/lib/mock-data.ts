@@ -188,6 +188,51 @@ export const AMOUNT_PRESETS = [10000, 20000, 50000, 100000, 200000, 500000]
 
 export const MOCK_STUDENTS: Student[] = [
   {
+    id: 'nhu',
+    code: '9192930041',
+    name: 'Huỳnh Ngọc Trúc Như',
+    school: 'Trường FINVIET',
+    className: 'Lớp 11A1',
+    dob: '15/08/2009',
+    gender: 'Nữ',
+    guardians: [
+      { name: 'Huỳnh Văn Nam', phone: '0903 123 456', address: 'Thành phố Hồ Chí Minh' },
+    ],
+    heightCm: 160,
+    weightKg: 48,
+    zScore: -0.2,
+    healthHistory: [
+      { heightCm: 160, weightKg: 48, zScore: -0.2, recordedAt: '15/08/2026' },
+      { heightCm: 159, weightKg: 47.5, zScore: -0.2, recordedAt: '15/06/2026' },
+    ],
+    balance: 0,
+    avatar: 'N',
+    supportsTopUp: false,
+    hasLinkedInvoice: true,
+    recentActivity: [
+      { title: 'Đã điểm danh', time: 'Hôm nay - 07:15' },
+      { title: 'Thêm liên kết học sinh Huỳnh Ngọc Trúc Như', time: '10/08/2026 - 14:20' },
+    ],
+    invoices: { linked: false, sample: [{ name: 'Học phí 10/2026', amount: 350000 }] },
+    homework: [],
+    absence: [],
+    results: null,
+    goodBehavior: {
+      yearLabel: 'Năm học 2025 - 2026',
+      cycles: [],
+      ranking: {
+        achieved: 0,
+        totalCycles: 0,
+        top3: [],
+        selfInTop3: false,
+        selfRank: null,
+        totalStudents: 35,
+        asOfLabel: '',
+        positionsAchieved: { first: 0, second: 0, third: 0 },
+      },
+    },
+  },
+  {
     id: 'vy',
     code: '9192930059',
     name: 'Phan Khánh Vy',
